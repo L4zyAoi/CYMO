@@ -13,7 +13,9 @@ using UnityEngine;
 ///     (Unity should default this, but I'm putting this here 
 ///     just in case i forgor :D).
 ///     
-///  4. Optionally assign a ClickIndicatorPrefab 
+///  4. Assign a WalkableArea so the character only walks on valid paths.
+///
+///  5. Optionally assign a ClickIndicatorPrefab 
 ///     to show a marker at the click position.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
@@ -25,6 +27,11 @@ public class PointAndClickController : MonoBehaviour
 
     [Tooltip("Distance from the target at which the character is considered to have arrived.")]
     public float stopDist = 0.1f;
+
+    [Header("Walkable Area")]
+    [Tooltip("Defines where the character is allowed to walk. " +
+             "Clicks outside the area are snapped to the nearest border point.")]
+    public WalkableArea walkableArea;
 
     [Header("Click Indicator (Optional)")]
     [Tooltip("Prefab spawned at the click position to give visual feedback.")]
@@ -40,7 +47,7 @@ public class PointAndClickController : MonoBehaviour
     // on a new click
     private GameObject currentIndicator;
 
-    // Unity callbacks 
+    #region Unity callbacks 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -63,8 +70,9 @@ public class PointAndClickController : MonoBehaviour
     {
         MoveCharacter();
     }
+    #endregion
 
-    // Input 
+    #region Input 
     private void HandleInput()
     {
         if (Input.GetMouseButtonDown(0))
@@ -75,11 +83,18 @@ public class PointAndClickController : MonoBehaviour
             screenPoint.z = -mainCam.transform.position.z; // keep on the z=0 plane
             Vector2 worldPoint = mainCam.ScreenToWorldPoint(screenPoint);
 
+            // Validate against the walkable area.
+            // If the click lands outside the path, clamp to the nearest border point
+            // so the character always walks as far as possible toward the click.
+            if (walkableArea != null)
+                worldPoint = walkableArea.ClampToArea(worldPoint);
+
             SetDestination(worldPoint);
         }
     }
+    #endregion
 
-    // Movement 
+    #region Movement 
     /// <summary>
     /// Call this to programmatically send the character 
     /// to a world position.
@@ -109,10 +124,24 @@ public class PointAndClickController : MonoBehaviour
 
         // Move toward the target
         Vector2 direction = (targetPos - rb.position).normalized;
-        rb.MovePosition(rb.position + direction * moveSpd * Time.fixedDeltaTime);
-    }
+        Vector2 nextPos = rb.position + direction * moveSpd * Time.fixedDeltaTime;
 
-    // Click Indicator 
+
+        // Clamp the next position to the walkable area every physics step.
+        // This is what actually prevents clipping through the border --
+        // clamping only the click destination isn't enough because the
+        // straight-line path between two valid points can briefly exit
+        // a concave polygon or graze the edge.
+        
+        // Aoi: for monkey brain & for later refactoring, it prevents the player from clipping through the walls
+        if (walkableArea != null)
+            nextPos = walkableArea.ClampToArea(nextPos);
+
+        rb.MovePosition(nextPos);
+    }
+    #endregion
+
+    #region Click Indicator 
     private void SpawnClickIndicator(Vector2 position)
     {
         if (clickIndicatorPrefab == null) return;
@@ -129,4 +158,5 @@ public class PointAndClickController : MonoBehaviour
             currentIndicator = null;
         }
     }
+    #endregion
 }

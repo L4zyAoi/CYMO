@@ -106,6 +106,18 @@ public class PointAndClickController : MonoBehaviour
         SpawnClickIndicator(worldPos);
     }
 
+    /// <summary>
+    /// Immediately stops the character in place.
+    /// Called by GameManager on section transitions so momentum doesn't carry over.
+    /// </summary>
+    public void StopMovement()
+    {
+        isMoving = false;
+        rb.linearVelocity = Vector2.zero;
+        targetPos = rb.position;
+        DestroyClickIndicator();
+    }
+
     private void MoveCharacter()
     {
         if (!isMoving) return;

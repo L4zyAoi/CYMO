@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 156bedcca9e534a4d9d3c2231147d728, type: 3}
   m_Name: Chapter1
   m_EditorClassIdentifier: 
-  chapterName: Chapter 1
+  chapName: Chapter 1
   maps:
   - {fileID: 11400000, guid: 004f7e03b3f3d7d4e8c7f9bf66298ff8, type: 2}
   defaultMapIndex: 0

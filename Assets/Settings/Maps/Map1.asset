@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Map1
   m_EditorClassIdentifier: 
   mapName: Liver
-  sceneName: SampleScene
+  sceneName: LiverScene
   sections:
-  - sectionName: Section 1
+  - sectionName: Section 1 NE 1st
     spawnPoint: {x: 0.23, y: -0.24}
     cameraBounds:
       serializedVersion: 2
@@ -23,12 +23,108 @@ MonoBehaviour:
       y: 0
       width: 0
       height: 0
-  - sectionName: Section 2
-    spawnPoint: {x: 14.49614, y: 6.541187}
+  - sectionName: Section 1 NE 2nd
+    spawnPoint: {x: 0, y: 0}
     cameraBounds:
       serializedVersion: 2
-      x: 11.09
-      y: 8.63
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+  - sectionName: Section 1 NW
+    spawnPoint: {x: -3.85, y: 3.66}
+    cameraBounds:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+  - sectionName: Section 1 SW
+    spawnPoint: {x: -6.39, y: -3.55}
+    cameraBounds:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+  - sectionName: Section 2 NE
+    spawnPoint: {x: 25.08, y: 15.15}
+    cameraBounds:
+      serializedVersion: 2
+      x: 18.19
+      y: 11.67
+      width: 0
+      height: 0
+  - sectionName: Section 2 NW
+    spawnPoint: {x: 14.31, y: 15.43}
+    cameraBounds:
+      serializedVersion: 2
+      x: 18.19
+      y: 11.67
+      width: 0
+      height: 0
+  - sectionName: Section 2 SE
+    spawnPoint: {x: 22.13, y: 8.12}
+    cameraBounds:
+      serializedVersion: 2
+      x: 18.19
+      y: 11.67
+      width: 0
+      height: 0
+  - sectionName: Section 2 SW
+    spawnPoint: {x: 10.96, y: 9.31}
+    cameraBounds:
+      serializedVersion: 2
+      x: 18.19
+      y: 11.67
+      width: 0
+      height: 0
+  - sectionName: Section 3 NW
+    spawnPoint: {x: 25.6, y: 24.4}
+    cameraBounds:
+      serializedVersion: 2
+      x: 33.25
+      y: 23.03
+      width: 0
+      height: 0
+  - sectionName: Section 3 SE
+    spawnPoint: {x: 29.81, y: 19.55}
+    cameraBounds:
+      serializedVersion: 2
+      x: 33.25
+      y: 23.03
+      width: 0
+      height: 0
+  - sectionName: Section 4 NE
+    spawnPoint: {x: 20.2, y: 24.3}
+    cameraBounds:
+      serializedVersion: 2
+      x: 12.79
+      y: 24.29
+      width: 0
+      height: 0
+  - sectionName: Section 4 SE
+    spawnPoint: {x: 16.4, y: 20.8}
+    cameraBounds:
+      serializedVersion: 2
+      x: 12.79
+      y: 24.29
+      width: 0
+      height: 0
+  - sectionName: Section 4 SW
+    spawnPoint: {x: 5.15, y: 20.6}
+    cameraBounds:
+      serializedVersion: 2
+      x: 12.79
+      y: 24.29
+      width: 0
+      height: 0
+  - sectionName: Section 4 NW
+    spawnPoint: {x: 5.35, y: 24.35}
+    cameraBounds:
+      serializedVersion: 2
+      x: 12.79
+      y: 24.29
       width: 0
       height: 0
   defaultSectionIndex: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 /// Optional visual indicator that appears at the clicked position.
 ///
 /// SETUP:
-///  1. Create a small GameObject (e.g. a circle sprite or a simple sprite).
+///  1. Create a small GameObject (e.g. a circle sprite).
 /// 
 ///  2. Attach this script to it.
 /// 
@@ -26,7 +26,6 @@ public class ClickIndicator : MonoBehaviour
     [Tooltip("Pulse scale amplitude (0 = no pulse).")]
     public float pulseAmp = 0.15f;
 
-    // Private state
     private SpriteRenderer spriteRenderer;
     private float timer;
     private Vector3 baseScale;

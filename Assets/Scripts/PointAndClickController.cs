@@ -15,12 +15,17 @@ using UnityEngine;
 ///     
 ///  4. Assign a WalkableArea so the character only walks on valid paths.
 ///
-///  5. Optionally assign a ClickIndicatorPrefab 
+///  5. Set up an "Interactable" Layer (Edit → Project Settings → Tags and Layers).
+///     Assign all PickupItem and ItemTarget GameObjects to that layer, then
+///     set the Interactable Layer mask on this component.
+///
+///  6. Optionally assign a ClickIndicatorPrefab 
 ///     to show a marker at the click position.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class PointAndClickController : MonoBehaviour
 {
+    #region Variables
     [Header("Movement")]
     [Tooltip("Movement speed in units per second.")]
     public float moveSpd = 5f;
@@ -33,19 +38,24 @@ public class PointAndClickController : MonoBehaviour
              "Clicks outside the area are snapped to the nearest border point.")]
     public WalkableArea walkableArea;
 
+    [Header("Interactables")]
+    [Tooltip("Layer that PickupItem and ItemTarget objects live on. " +
+             "Clicks on this layer are handled as interactions, not movement.")]
+    public LayerMask interactableLayer;
+
     [Header("Click Indicator (Optional)")]
     [Tooltip("Prefab spawned at the click position to give visual feedback.")]
     public GameObject clickIndicatorPrefab;
 
-    // Private state 
     private Rigidbody2D rb;
     private Camera mainCam;
     private Vector2 targetPos;
     private bool isMoving;
 
-    // Keep a reference so we can destroy the old indicator 
+    // Keep a reference so it can destroy the old indicator 
     // on a new click
     private GameObject currentIndicator;
+    #endregion
 
     #region Unity callbacks 
     void Awake()
@@ -77,15 +87,24 @@ public class PointAndClickController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            // This should convert the screen-space click into a 2D world point
-            // PS: it does :DD
             Vector3 screenPoint = Input.mousePosition;
-            screenPoint.z = -mainCam.transform.position.z; // keep on the z=0 plane
+            screenPoint.z = -mainCam.transform.position.z;
             Vector2 worldPoint = mainCam.ScreenToWorldPoint(screenPoint);
 
-            // Validate against the walkable area.
-            // If the click lands outside the path, clamp to the nearest border point
-            // so the character always walks as far as possible toward the click.
+            // Check for interactable objects first (layer-masked, ignores WalkableArea)
+            Collider2D hit = Physics2D.OverlapPoint(worldPoint, interactableLayer);
+            if (hit != null)
+            {
+                // Try pickup
+                PickupItem pickup = hit.GetComponent<PickupItem>();
+                if (pickup != null) { pickup.TryPickup(); return; }
+
+                // Try item target (drag-drop handles this, but support direct click too)
+                ItemTarget target = hit.GetComponent<ItemTarget>();
+                if (target != null) return; // let drag-drop UI handle it
+            }
+
+            // No interactable hit — treat as a movement click
             if (walkableArea != null)
                 worldPoint = walkableArea.ClampToArea(worldPoint);
 

@@ -34,9 +34,9 @@ public class PointAndClickController : MonoBehaviour
     public float stopDist = 0.1f;
 
     [Header("Walkable Area")]
-    [Tooltip("Defines where the character is allowed to walk. " +
-             "Clicks outside the area are snapped to the nearest border point.")]
-    public WalkableArea walkableArea;
+    [Tooltip("All walkable regions for this scene. Add WalkableArea_Extension here " +
+             "(disabled by default) — enable it when puzzles open new paths.")]
+    public WalkableArea[] walkableAreas;
 
     [Header("Interactables")]
     [Tooltip("Layer that PickupItem and ItemTarget objects live on. " +
@@ -51,10 +51,10 @@ public class PointAndClickController : MonoBehaviour
     private Camera mainCam;
     private Vector2 targetPos;
     private bool isMoving;
-
-    // Keep a reference so it can destroy the old indicator 
-    // on a new click
     private GameObject currentIndicator;
+
+    // Tracks the obstacle being held so we can cancel on mouse-up
+    private BlockingObstacle activeObstacle;
     #endregion
 
     #region Unity callbacks 
@@ -67,7 +67,6 @@ public class PointAndClickController : MonoBehaviour
         // from physics collisions
         rb.freezeRotation = true;
 
-        // Start at the character's current world position
         targetPos = rb.position;
     }
 
@@ -95,20 +94,32 @@ public class PointAndClickController : MonoBehaviour
             Collider2D hit = Physics2D.OverlapPoint(worldPoint, interactableLayer);
             if (hit != null)
             {
-                // Try pickup
                 PickupItem pickup = hit.GetComponent<PickupItem>();
                 if (pickup != null) { pickup.TryPickup(); return; }
 
-                // Try item target (drag-drop handles this, but support direct click too)
+                // Start holding an obstacle — track it so we can cancel on mouse-up
+                BlockingObstacle obstacle = hit.GetComponent<BlockingObstacle>();
+                if (obstacle != null)
+                {
+                    activeObstacle = obstacle;
+                    activeObstacle.StartHold();
+                    return;
+                }
+
                 ItemTarget target = hit.GetComponent<ItemTarget>();
-                if (target != null) return; // let drag-drop UI handle it
+                if (target != null) return;
             }
 
             // No interactable hit — treat as a movement click
-            if (walkableArea != null)
-                worldPoint = walkableArea.ClampToArea(worldPoint);
-
+            worldPoint = WalkableArea.ClampToNearest(walkableAreas, worldPoint);
             SetDestination(worldPoint);
+        }
+
+        // Release: cancel the hold if the mouse button was let go
+        if (Input.GetMouseButtonUp(0) && activeObstacle != null)
+        {
+            activeObstacle.CancelHold();
+            activeObstacle = null;
         }
     }
     #endregion
@@ -158,15 +169,9 @@ public class PointAndClickController : MonoBehaviour
         Vector2 nextPos = rb.position + direction * moveSpd * Time.fixedDeltaTime;
 
 
-        // Clamp the next position to the walkable area every physics step.
-        // This is what actually prevents clipping through the border --
-        // clamping only the click destination isn't enough because the
-        // straight-line path between two valid points can briefly exit
-        // a concave polygon or graze the edge.
-        
+        // Clamp every physics step so the player never clips through a border.
         // Aoi: for monkey brain & for later refactoring, it prevents the player from clipping through the walls
-        if (walkableArea != null)
-            nextPos = walkableArea.ClampToArea(nextPos);
+        nextPos = WalkableArea.ClampToNearest(walkableAreas, nextPos);
 
         rb.MovePosition(nextPos);
     }

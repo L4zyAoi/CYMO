@@ -97,6 +97,9 @@ public class PointAndClickController : MonoBehaviour
                 PickupItem pickup = hit.GetComponent<PickupItem>();
                 if (pickup != null) { pickup.TryPickup(); return; }
 
+                FragmentPickup fragment = hit.GetComponent<FragmentPickup>();
+                if (fragment != null) { fragment.TryCollect(); return; }
+
                 // Start holding an obstacle — track it so we can cancel on mouse-up
                 BlockingObstacle obstacle = hit.GetComponent<BlockingObstacle>();
                 if (obstacle != null)

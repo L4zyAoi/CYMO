@@ -41,9 +41,9 @@ public class BlockingObstacle : MonoBehaviour
     [Tooltip("The PullProgressUI that shows the hold progress. Assign if using visual feedback.")]
     public PullProgressUI progressUI;
 
-    private float   holdTimer   = 0f;
-    private bool    isHolding   = false;
-    private bool    completed   = false;
+    private float holdTimer = 0f;
+    private bool isHolding = false;
+    private bool completed = false;
 
     // Per-frame input 
     void Update()
@@ -68,8 +68,10 @@ public class BlockingObstacle : MonoBehaviour
         }
     }
 
-    // Called by PointAndClickController
-    /// <summary>Call when the player presses the mouse button over this obstacle.</summary>
+    /// <summary>
+    /// Call when the player presses the mouse button over this obstacle.
+    /// Called by PointAndClickController
+    /// </summary>
     public void StartHold()
     {
         if (completed) return;
@@ -78,7 +80,9 @@ public class BlockingObstacle : MonoBehaviour
         progressUI?.Show(true);
     }
 
-    /// <summary>Call when the mouse button is released or cursor leaves.</summary>
+    /// <summary>
+    /// Call when the mouse button is released or cursor leaves.
+    /// </summary>
     public void CancelHold()
     {
         isHolding = false;
@@ -87,16 +91,21 @@ public class BlockingObstacle : MonoBehaviour
         progressUI?.Show(false);
     }
 
-    // Logic
-
+    #region Logic
     private void CompletePull()
     {
         completed = true;
         isHolding = false;
         progressUI?.Show(false);
 
-        // Hide the obstacle immediately
-        gameObject.SetActive(false);
+        // Hide visually and disable interaction — NOT SetActive(false)!
+        // SetActive(false) kills all coroutines on this GameObject before
+        // SpawnDebrisSequence() can finish, causing "Coroutine on inactive object".
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null) sr.enabled = false;
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
 
         StartCoroutine(SpawnDebrisSequence());
     }
@@ -119,4 +128,5 @@ public class BlockingObstacle : MonoBehaviour
 
         OnPulled?.Invoke();
     }
+    #endregion
 }

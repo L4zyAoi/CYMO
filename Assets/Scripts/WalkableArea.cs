@@ -43,8 +43,36 @@ public class WalkableArea : MonoBehaviour
         if (Contains(worldPoint))
             return worldPoint;
 
-        // ClosestPoint returns the nearest point ON the collider surface
         return poly.ClosestPoint(worldPoint);
+    }
+
+    /// <summary>
+    /// Given an array of active WalkableAreas, returns the point as-is if it
+    /// falls inside ANY area, otherwise returns the closest border point across
+    /// all of them. Pass only enabled areas.
+    /// </summary>
+    public static Vector2 ClampToNearest(WalkableArea[] areas, Vector2 worldPoint)
+    {
+        if (areas == null || areas.Length == 0) return worldPoint;
+
+        // If inside any area — accept the point directly
+        foreach (var area in areas)
+            if (area != null && area.isActiveAndEnabled && area.Contains(worldPoint))
+                return worldPoint;
+
+        // Find the closest border point across all active areas
+        float   bestDist  = float.MaxValue;
+        Vector2 bestPoint = worldPoint;
+
+        foreach (var area in areas)
+        {
+            if (area == null || !area.isActiveAndEnabled) continue;
+            Vector2 candidate = area.poly.ClosestPoint(worldPoint);
+            float   dist      = Vector2.SqrMagnitude(candidate - worldPoint);
+            if (dist < bestDist) { bestDist = dist; bestPoint = candidate; }
+        }
+
+        return bestPoint;
     }
 
 

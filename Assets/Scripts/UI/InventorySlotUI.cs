@@ -41,12 +41,16 @@ public class InventorySlotUI : MonoBehaviour,
 
     #region Unity callbacks
     void Awake() => rootCanvas = GetComponentInParent<Canvas>();
-    
 
-    void OnEnable()
+    void Start()
     {
+        // Subscribe here — Start() is guaranteed to run after ALL Awake() calls,
+        // so InventoryManager.Instance is always set by this point.
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnInvenChanged += Refresh;
+        else
+            Debug.LogWarning("[InventorySlotUI] InventoryManager not found! " +
+                             "Make sure it exists in the scene.", this);
         Refresh();
     }
 
@@ -56,6 +60,7 @@ public class InventorySlotUI : MonoBehaviour,
             InventoryManager.Instance.OnInvenChanged -= Refresh;
     }
     #endregion
+
 
     #region Display
     private void Refresh()

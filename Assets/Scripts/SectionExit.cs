@@ -1,21 +1,20 @@
 using UnityEngine;
 
+using UnityEngine;
+using UnityEngine.Serialization;
+
 /// <summary>
-/// A trigger zone placed on a walkable path that transports the player
-/// to another section (same map) or another map entirely.
+/// Clickable exit zone that walks the character to the exit then
+/// transitions to the target section or map.
 ///
 /// SETUP:
-///  1. Create a child GameObject on the WalkableArea (or scene root).
-/// 
-///  2. Add a BoxCollider2D → enable "Is Trigger".
-/// 
-///  3. Size/position the box so it spans the narrow exit path.
-/// 
-///  4. Attach this script.
-/// 
-///  5. Set Exit Type and target fields in the Inspector.
-/// 
-///  6. Make sure the Player GameObject has a Collider2D and its tag is "Player".
+///  1. Set Layer to "Interactable" (same as PickupItem / BlockingObstacle).
+///  2. Add a BoxCollider2D (Is Trigger: OFF for click detection).
+///     Size it to cover the visible exit area.
+///  3. Attach this script and set Exit Type + target fields.
+///  4. Set Walk Target to a world point INSIDE the nearest WalkableArea —
+///     this is where the character walks before the transition fires.
+///     (Use the Gizmo sphere in the Scene view to position it.)
 /// </summary>
 public class SectionExit : MonoBehaviour
 {
@@ -30,9 +29,18 @@ public class SectionExit : MonoBehaviour
     [Header("Exit Configuration")]
     public ExitType exitType = ExitType.SameMap;
 
+    [Header("Walk Navigation")]
+    [Tooltip("World position the character walks to before the transition fires. " +
+             "Must be inside a WalkableArea. Position using the Scene-view gizmo.")]
+    public Vector2 walkTarget;
+
     [Header("Same-Map Transition")]
-    [Tooltip("Index of the section (in the current MapData) to go to.")]
-    public int targetSectionIndex = 0;
+    [FormerlySerializedAs("targetSectionIndex")]
+    [UnityEngine.Serialization.FormerlySerializedAs("targetExitId")]
+    [Tooltip("Exit id for same-map transitions. " +
+             "If current SectionData has an ExitLink with this id, that mapping is used. " +
+             "Otherwise this is treated as a direct section index (backward compatible).")]
+    public int exitId = 0;
 
     [Header("New-Map Transition")]
     [Tooltip("The MapData asset to load.")]
@@ -44,17 +52,28 @@ public class SectionExit : MonoBehaviour
     [Tooltip("Leave null to stay in the current chapter.")]
     public ChapterData targetChapter;
 
-    // Prevent double-firing
     private bool triggered = false;
 
-    #region Unity callbacks
-    void OnTriggerEnter2D(Collider2D other)
+    #region Interaction
+    /// <summary>
+    /// Called by PointAndClickController when the player clicks this exit.
+    /// Sends the character to walkTarget, then fires the transition on arrival.
+    /// </summary>
+    public void OnClicked()
     {
         if (triggered) return;
-        if (!other.CompareTag("Player")) return;
+
+        PointAndClickController player =
+            FindFirstObjectByType<PointAndClickController>();
+
+        if (player == null)
+        {
+            Debug.LogError("[SectionExit] No PointAndClickController found in scene!");
+            return;
+        }
 
         triggered = true;
-        Fire();
+        player.SetDestinationWithCallback(walkTarget, Fire);
     }
 
     private void Fire()
@@ -69,7 +88,7 @@ public class SectionExit : MonoBehaviour
         switch (exitType)
         {
             case ExitType.SameMap:
-                GameManager.Instance.GoToSection(targetSectionIndex);
+                GameManager.Instance.GoToSectionFromExitOrSection(exitId);
                 break;
 
             case ExitType.NewMap:
@@ -83,19 +102,19 @@ public class SectionExit : MonoBehaviour
                 break;
         }
 
-        // Re-enable after a short delay so the player can walk back through
         Invoke(nameof(ResetTrigger), 1.5f);
     }
 
     private void ResetTrigger() => triggered = false;
     #endregion
 
-    #region Gizmo
+    #region Gizmos
     void OnDrawGizmos()
     {
-        Gizmos.color = exitType == ExitType.SameMap
-            ? new Color(0.2f, 0.6f, 1f, 0.35f)   // blue  = same map
-            : new Color(1f, 0.5f, 0.1f, 0.35f);   // orange = new map
+        Color c = exitType == ExitType.SameMap
+            ? new Color(0.2f, 0.6f, 1f, 0.35f)
+            : new Color(1f, 0.5f, 0.1f, 0.35f);
+        Gizmos.color = c;
 
         BoxCollider2D box = GetComponent<BoxCollider2D>();
         if (box != null)
@@ -103,13 +122,19 @@ public class SectionExit : MonoBehaviour
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawCube(box.offset, box.size);
         }
+
+        // Draw the walk target so you can position it in the Scene view
+        Gizmos.matrix = Matrix4x4.identity;
+        Gizmos.color  = Color.yellow;
+        Gizmos.DrawSphere(walkTarget, 0.12f);
     }
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = exitType == ExitType.SameMap
+        Color c = exitType == ExitType.SameMap
             ? new Color(0.2f, 0.6f, 1f, 0.8f)
             : new Color(1f, 0.5f, 0.1f, 0.8f);
+        Gizmos.color = c;
 
         BoxCollider2D box = GetComponent<BoxCollider2D>();
         if (box != null)
@@ -117,6 +142,10 @@ public class SectionExit : MonoBehaviour
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(box.offset, box.size);
         }
+
+        Gizmos.matrix = Matrix4x4.identity;
+        Gizmos.color  = Color.yellow;
+        Gizmos.DrawWireSphere(walkTarget, 0.15f);
     }
     #endregion
 }

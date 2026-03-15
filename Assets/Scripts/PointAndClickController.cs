@@ -1,26 +1,22 @@
+using System;
 using UnityEngine;
 
 /// <summary>
 /// Point-and-click 2D character controller.
+/// Character only moves when an interactable (SectionExit, pickup, etc.) is clicked.
+/// Free-click movement is intentionally disabled.
 ///
 /// SETUP:
-///  1. Attach this script to the character GameObject.
+///  1. Attach to the character. Needs Rigidbody2D (Dynamic, Gravity Scale = 0).
 ///  
-///  2. Make sure the character has a Rigidbody2D 
-///     (Body Type = Dynamic, Gravity Scale = 0).
+///  2. Camera tagged "MainCamera".
+///  
+///  3. Assign WalkableAreas array.
+///  
+///  4. Set Interactable Layer mask — all PickupItem, FragmentPickup, BlockingObstacle,
+///     ItemTarget, and SectionExit objects must be on this layer.
 ///     
-///  3. The Main Camera must be tagged "MainCamera" 
-///     (Unity should default this, but I'm putting this here 
-///     just in case i forgor :D).
-///     
-///  4. Assign a WalkableArea so the character only walks on valid paths.
-///
-///  5. Set up an "Interactable" Layer (Edit → Project Settings → Tags and Layers).
-///     Assign all PickupItem and ItemTarget GameObjects to that layer, then
-///     set the Interactable Layer mask on this component.
-///
-///  6. Optionally assign a ClickIndicatorPrefab 
-///     to show a marker at the click position.
+///  5. Assign a CursorManager in the scene for pointer cursor changes.
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class PointAndClickController : MonoBehaviour
@@ -52,9 +48,10 @@ public class PointAndClickController : MonoBehaviour
     private Vector2 targetPos;
     private bool isMoving;
     private GameObject currentIndicator;
+    private BlockingObstacle activeObstacle; // obstacle currently being held
+    private Action onArrivedCallback;        // fires once when character reaches targetPos
 
-    // Tracks the obstacle being held so we can cancel on mouse-up
-    private BlockingObstacle activeObstacle;
+    private bool warnedNoCam = false;
     #endregion
 
     #region Unity callbacks 
@@ -72,7 +69,21 @@ public class PointAndClickController : MonoBehaviour
 
     void Update()
     {
-        HandleInput();
+		// Attempt to recover a missing camera reference at runtime
+		if (mainCam == null)
+		{
+			mainCam = Camera.main;
+			if (mainCam == null && !warnedNoCam)
+			{
+				Debug.LogError("[PointAndClickController] No Camera tagged 'MainCamera' found in scene. Point-and-click input and cursor hover are disabled until a MainCamera exists.");
+				warnedNoCam = true;
+			}
+		}
+
+		if (mainCam == null)
+			return; // cannot process input/hover without a camera
+		HandleInput();
+        UpdateHoverCursor();
     }
 
     void FixedUpdate()
@@ -81,7 +92,7 @@ public class PointAndClickController : MonoBehaviour
     }
     #endregion
 
-    #region Input 
+    #region Input
     private void HandleInput()
     {
         if (Input.GetMouseButtonDown(0))
@@ -90,7 +101,6 @@ public class PointAndClickController : MonoBehaviour
             screenPoint.z = -mainCam.transform.position.z;
             Vector2 worldPoint = mainCam.ScreenToWorldPoint(screenPoint);
 
-            // Check for interactable objects first (layer-masked, ignores WalkableArea)
             Collider2D hit = Physics2D.OverlapPoint(worldPoint, interactableLayer);
             if (hit != null)
             {
@@ -100,42 +110,63 @@ public class PointAndClickController : MonoBehaviour
                 FragmentPickup fragment = hit.GetComponent<FragmentPickup>();
                 if (fragment != null) { fragment.TryCollect(); return; }
 
-                // Start holding an obstacle — track it so we can cancel on mouse-up
                 BlockingObstacle obstacle = hit.GetComponent<BlockingObstacle>();
-                if (obstacle != null)
-                {
-                    activeObstacle = obstacle;
-                    activeObstacle.StartHold();
-                    return;
-                }
+                if (obstacle != null) { activeObstacle = obstacle; activeObstacle.StartHold(); return; }
+
+                SectionExit exit = hit.GetComponent<SectionExit>();
+                if (exit != null) { exit.OnClicked(); return; }
 
                 ItemTarget target = hit.GetComponent<ItemTarget>();
-                if (target != null) return;
+                if (target != null) return; // drag-drop UI handles this
             }
-
-            // No interactable hit — treat as a movement click
-            worldPoint = WalkableArea.ClampToNearest(walkableAreas, worldPoint);
-            SetDestination(worldPoint);
+            // Clicking empty space does nothing — movement is exit-driven only
         }
 
-        // Release: cancel the hold if the mouse button was let go
         if (Input.GetMouseButtonUp(0) && activeObstacle != null)
         {
             activeObstacle.CancelHold();
             activeObstacle = null;
         }
     }
+
+    /// <summary>
+    /// Raycasts the interactable layer every frame.
+    /// Shows the pointer cursor when hovering over anything interactive.
+    /// </summary>
+    private void UpdateHoverCursor()
+    {
+        Vector3 sp = Input.mousePosition;
+        sp.z = -mainCam.transform.position.z;
+        Vector2 wp = mainCam.ScreenToWorldPoint(sp);
+
+        Collider2D hit = Physics2D.OverlapPoint(wp, interactableLayer);
+        if (hit != null)
+            CursorManager.SetPointer();
+        else
+            CursorManager.SetDefault();
+    }
     #endregion
 
-    #region Movement 
-    /// <summary>
-    /// Call this to programmatically send the character 
-    /// to a world position.
-    /// </summary>
+    #region Movement
+    /// <summary>Move the character to a world position.</summary>
     public void SetDestination(Vector2 worldPos)
     {
+        onArrivedCallback = null;
         targetPos = worldPos;
-        isMoving = true;
+        isMoving  = true;
+        SpawnClickIndicator(worldPos);
+    }
+
+    /// <summary>
+    /// Move to a world position and fire a callback on arrival.
+    /// Used by SectionExit to trigger the section transition once the
+    /// character has actually walked to the exit point.
+    /// </summary>
+    public void SetDestinationWithCallback(Vector2 worldPos, Action onArrived)
+    {
+        onArrivedCallback = onArrived;
+        targetPos = worldPos;
+        isMoving  = true;
         SpawnClickIndicator(worldPos);
     }
 
@@ -159,11 +190,15 @@ public class PointAndClickController : MonoBehaviour
 
         if (distToTarget <= stopDist)
         {
-            // Snap exactly to the target and stop
             rb.MovePosition(targetPos);
             rb.linearVelocity = Vector2.zero;
             isMoving = false;
             DestroyClickIndicator();
+
+            // Fire arrival callback (e.g. SectionExit transition)
+            Action cb = onArrivedCallback;
+            onArrivedCallback = null;
+            cb?.Invoke();
             return;
         }
 

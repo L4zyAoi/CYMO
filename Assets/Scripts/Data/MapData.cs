@@ -24,9 +24,9 @@ public class MapData : ScriptableObject
     #region Helpers
     /// <summary>
     /// Returns the default section, or null if the array is empty.
+    /// Uses the safe GetSection method so out-of-range indices are handled.
     /// </summary>
-    public SectionData DefaultSection =>
-        sections.Length > 0 ? sections[defaultSectionIndex] : null;
+    public SectionData DefaultSection => GetSection(defaultSectionIndex);
 
     /// <summary>
     /// Safe section getter — clamps index to valid range.
@@ -36,6 +36,18 @@ public class MapData : ScriptableObject
         if (sections == null || sections.Length == 0) return null;
         index = Mathf.Clamp(index, 0, sections.Length - 1);
         return sections[index];
+    }
+
+    // Ensure Inspector edits don't leave defaultSectionIndex out of range.
+    void OnValidate()
+    {
+        if (sections == null)
+            sections = new SectionData[0];
+
+        if (sections.Length == 0)
+            defaultSectionIndex = 0;
+        else
+            defaultSectionIndex = Mathf.Clamp(defaultSectionIndex, 0, sections.Length - 1);
     }
     #endregion
 }

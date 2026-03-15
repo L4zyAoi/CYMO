@@ -23,4 +23,100 @@ MonoBehaviour:
       y: 0
       width: 0
       height: 0
+    exits:
+    - exitName: section 1 entry
+      exitId: 0
+      targetSectionIndex: 0
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+    - exitName: section 2 entry
+      exitId: 1
+      targetSectionIndex: 0
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+    - exitName: section 3 entry
+      exitId: 2
+      targetSectionIndex: 0
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+    - exitName: section 4 entry
+      exitId: 3
+      targetSectionIndex: 0
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+    - exitName: section 5 entry
+      exitId: 4
+      targetSectionIndex: 0
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+  - sectionName: Section 1
+    spawnPoint: {x: -2.5, y: 32.8}
+    cameraBounds:
+      serializedVersion: 2
+      x: -2.5
+      y: 32.9
+      width: 0
+      height: 0
+    exits:
+    - exitName: section 1 exit
+      exitId: 5
+      targetSectionIndex: 1
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+  - sectionName: Section 2
+    spawnPoint: {x: -29.6, y: 19.3}
+    cameraBounds:
+      serializedVersion: 2
+      x: -29.6
+      y: 19.3
+      width: 0
+      height: 0
+    exits:
+    - exitName: Section 2 exit
+      exitId: 6
+      targetSectionIndex: 2
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+  - sectionName: Section 3
+    spawnPoint: {x: -42.4, y: 0.5}
+    cameraBounds:
+      serializedVersion: 2
+      x: -42.4
+      y: 0.5
+      width: 0
+      height: 0
+    exits:
+    - exitName: Section 3 exit
+      exitId: 7
+      targetSectionIndex: 3
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+  - sectionName: Section 4
+    spawnPoint: {x: -25.9, y: -16.1}
+    cameraBounds:
+      serializedVersion: 2
+      x: -25.9
+      y: -16.1
+      width: 0
+      height: 0
+    exits:
+    - exitName: Section 4 exit
+      exitId: 8
+      targetSectionIndex: 4
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
+  - sectionName: Section 5 exit
+    spawnPoint: {x: -7.2, y: -35.2}
+    cameraBounds:
+      serializedVersion: 2
+      x: -7.2
+      y: -35.2
+      width: 0
+      height: 0
+    exits:
+    - exitName: Section 5 exit
+      exitId: 9
+      targetSectionIndex: 5
+      useOverrideSpawnPoint: 0
+      overrideSpawnPoint: {x: 0, y: 0}
   defaultSectionIndex: 0

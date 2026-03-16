@@ -17,9 +17,14 @@ using UnityEngine.Events;
 /// </summary>
 public class BlockingObstacle : MonoBehaviour
 {
+    #region Variables
     [Header("Pull Settings")]
     [Tooltip("Seconds the player must hold to complete the pull.")]
     public float holdDuration = 1.5f;
+
+    [Tooltip("Which section index (in the MapData) this puzzle is located in. " +
+             "Used to trigger the entry animation only when the player arrives.")]
+    public int mySectionIndex = 0;
 
     [Header("On Pulled — Scene References")]
     [Tooltip("The WalkableArea that opens up once the obstacle is removed.")]
@@ -41,11 +46,46 @@ public class BlockingObstacle : MonoBehaviour
     [Tooltip("The PullProgressUI that shows the hold progress. Assign if using visual feedback.")]
     public PullProgressUI progressUI;
 
+    [Header("Animation (Optional)")]
+    public Animator animator;
+    [Tooltip("Trigger name for the first entry animation.")]
+    public string triggerEntry = "Entry";
+    [Tooltip("Trigger name for the pulling animation.")]
+    public string triggerPull = "Pull";
+    [Tooltip("Trigger name for the hide/release animation.")]
+    public string triggerHide = "Hide";
+
     private float holdTimer = 0f;
     private bool isHolding = false;
     private bool completed = false;
+    #endregion
 
-    // Per-frame input 
+    #region Unity Callbacks
+    void OnEnable()
+    {
+        // GameManager might not exist in awake/enable during map load,
+        // so we start a coroutine to subscribe once it's ready.
+        StartCoroutine(SubscribeToGameManager());
+    }
+
+    void OnDisable()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.onSectionEntered -= OnSectionEntered;
+    }
+    #endregion
+
+    private IEnumerator SubscribeToGameManager()
+    {
+        yield return new WaitUntil(() => GameManager.Instance != null);
+        GameManager.Instance.onSectionEntered += OnSectionEntered;
+
+        // If the player is already in this section when the object enables
+        // (e.g. they spawned here directly), trigger entry immediately.
+        if (GameManager.Instance.currSectionIndex == mySectionIndex)
+            OnSectionEntered(mySectionIndex);
+    }
+
     void Update()
     {
         if (completed) return;
@@ -78,6 +118,9 @@ public class BlockingObstacle : MonoBehaviour
         isHolding = true;
         holdTimer = 0f;
         progressUI?.Show(true);
+
+        if (animator != null && !string.IsNullOrEmpty(triggerPull))
+            animator.SetTrigger(triggerPull);
     }
 
     /// <summary>
@@ -89,6 +132,26 @@ public class BlockingObstacle : MonoBehaviour
         holdTimer = 0f;
         progressUI?.SetProgress(0f);
         progressUI?.Show(false);
+
+        if (animator != null && !string.IsNullOrEmpty(triggerHide))
+            animator.SetTrigger(triggerHide);
+    }
+
+    // Section Entry
+    private void OnSectionEntered(int sectionIndex)
+    {
+        if (completed) return;
+
+        // Only play the entry animation if the player actually walked into OUR section
+        if (sectionIndex == mySectionIndex)
+        {
+            if (animator != null && !string.IsNullOrEmpty(triggerEntry))
+                animator.SetTrigger(triggerEntry);
+            
+            // Unsubscribe — the entry anim only ever plays once.
+            if (GameManager.Instance != null)
+                GameManager.Instance.onSectionEntered -= OnSectionEntered;
+        }
     }
 
     #region Logic

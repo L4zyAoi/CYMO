@@ -51,6 +51,9 @@ public class PointAndClickController : MonoBehaviour
     private BlockingObstacle activeObstacle; // obstacle currently being held
     private Action onArrivedCallback;        // fires once when character reaches targetPos
 
+    private System.Collections.Generic.List<Vector2> currentPath;
+    private int currentPathIndex = 0;
+
     private bool warnedNoCam = false;
     #endregion
 
@@ -113,6 +116,9 @@ public class PointAndClickController : MonoBehaviour
                 BlockingObstacle obstacle = hit.GetComponent<BlockingObstacle>();
                 if (obstacle != null) { activeObstacle = obstacle; activeObstacle.StartHold(); return; }
 
+                LampPuzzle lamp = hit.GetComponent<LampPuzzle>();
+                if (lamp != null) { lamp.ActivateLamp(); return; }
+
                 SectionExit exit = hit.GetComponent<SectionExit>();
                 if (exit != null) { exit.OnClicked(); return; }
 
@@ -153,6 +159,8 @@ public class PointAndClickController : MonoBehaviour
     {
         onArrivedCallback = null;
         targetPos = worldPos;
+        currentPath = WalkableArea.GetPath(walkableAreas, rb.position, targetPos);
+        currentPathIndex = 0;
         isMoving  = true;
         SpawnClickIndicator(worldPos);
     }
@@ -166,6 +174,8 @@ public class PointAndClickController : MonoBehaviour
     {
         onArrivedCallback = onArrived;
         targetPos = worldPos;
+        currentPath = WalkableArea.GetPath(walkableAreas, rb.position, targetPos);
+        currentPathIndex = 0;
         isMoving  = true;
         SpawnClickIndicator(worldPos);
     }
@@ -184,28 +194,33 @@ public class PointAndClickController : MonoBehaviour
 
     private void MoveCharacter()
     {
-        if (!isMoving) return;
+        if (!isMoving || currentPath == null || currentPathIndex >= currentPath.Count) return;
 
-        float distToTarget = Vector2.Distance(rb.position, targetPos);
+        Vector2 waypoint = currentPath[currentPathIndex];
+        float distToWaypoint = Vector2.Distance(rb.position, waypoint);
 
-        if (distToTarget <= stopDist)
+        if (distToWaypoint <= stopDist)
         {
-            rb.MovePosition(targetPos);
-            rb.linearVelocity = Vector2.zero;
-            isMoving = false;
-            DestroyClickIndicator();
+            currentPathIndex++;
+            if (currentPathIndex >= currentPath.Count)
+            {
+                rb.MovePosition(targetPos);
+                rb.linearVelocity = Vector2.zero;
+                isMoving = false;
+                DestroyClickIndicator();
 
-            // Fire arrival callback (e.g. SectionExit transition)
-            Action cb = onArrivedCallback;
-            onArrivedCallback = null;
-            cb?.Invoke();
-            return;
+                // Fire arrival callback (e.g. SectionExit transition)
+                Action cb = onArrivedCallback;
+                onArrivedCallback = null;
+                cb?.Invoke();
+                return;
+            }
+            waypoint = currentPath[currentPathIndex];
         }
 
-        // Move toward the target
-        Vector2 direction = (targetPos - rb.position).normalized;
+        // Move toward the current waypoint
+        Vector2 direction = (waypoint - rb.position).normalized;
         Vector2 nextPos = rb.position + direction * moveSpd * Time.fixedDeltaTime;
-
 
         // Clamp every physics step so the player never clips through a border.
         // Aoi: for monkey brain & for later refactoring, it prevents the player from clipping through the walls

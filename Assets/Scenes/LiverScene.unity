@@ -6255,7 +6255,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpd: 5
   stopDist: 0.1
-  walkableAreas: []
+  walkableAreas:
+  - {fileID: 79725847}
   interactableLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -7067,9 +7068,9 @@ SceneRoots:
   - {fileID: 1606370595}
   - {fileID: 519420032}
   - {fileID: 619394802}
+  - {fileID: 1034043514}
+  - {fileID: 1451151405}
   - {fileID: 40533276}
   - {fileID: 1882378813}
   - {fileID: 1278999799}
   - {fileID: 1366083831}
-  - {fileID: 1034043514}
-  - {fileID: 1451151405}

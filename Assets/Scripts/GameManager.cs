@@ -59,6 +59,8 @@ public class GameManager : MonoBehaviour
     public SectionData currSection =>
         currMap?.GetSection(currSectionIndex);
 
+	public System.Action<int> onSectionEntered;
+
     #region Unity callbacks
     void Awake()
     {
@@ -257,6 +259,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		Debug.Log($"[GameManager] Entered section: {section.sectionName}");
+		onSectionEntered?.Invoke(sectionIndex);
 	}
 	#endregion
 

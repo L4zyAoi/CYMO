@@ -43,10 +43,30 @@ public class PointAndClickController : MonoBehaviour
     [Tooltip("Prefab spawned at the click position to give visual feedback.")]
     public GameObject clickIndicatorPrefab;
 
+    [Header("Animation")]
+    [Tooltip("Optional Animator for the character.")]
+    public Animator animator;
+    [Tooltip("Boolean parameter name in the Animator to trigger walking.")]
+    public string isWalkingParam = "isWalking";
+
     private Rigidbody2D rb;
     private Camera mainCam;
     private Vector2 targetPos;
-    private bool isMoving;
+    
+    private bool _isMoving;
+    private bool isMoving
+    {
+        get => _isMoving;
+        set
+        {
+            if (_isMoving == value) return;
+            _isMoving = value;
+            if (animator != null && !string.IsNullOrEmpty(isWalkingParam))
+            {
+                animator.SetBool(isWalkingParam, _isMoving);
+            }
+        }
+    }
     private GameObject currentIndicator;
     private BlockingObstacle activeObstacle; // obstacle currently being held
     private Action onArrivedCallback;        // fires once when character reaches targetPos

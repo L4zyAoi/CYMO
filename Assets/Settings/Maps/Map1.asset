@@ -50,7 +50,7 @@ MonoBehaviour:
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
   - sectionName: Section 1
-    spawnPoint: {x: -2.5, y: 32.8}
+    spawnPoint: {x: -1.65, y: 30}
     cameraBounds:
       serializedVersion: 2
       x: -2.5

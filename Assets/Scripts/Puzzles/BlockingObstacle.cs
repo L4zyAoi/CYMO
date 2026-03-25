@@ -26,6 +26,11 @@ public class BlockingObstacle : MonoBehaviour
              "Used to trigger the entry animation only when the player arrives.")]
     public int mySectionIndex = 0;
 
+    [Header("Mode")]
+    [Tooltip("If true, pulling is disabled. Instead, the player must drag an item onto this obstacle " +
+             "(via an ItemTarget component) to trigger the auto-fall sequence.")]
+    public bool requiresItem = false;
+
     [Header("On Pulled — Scene References")]
     [Tooltip("The WalkableArea that opens up once the obstacle is removed.")]
     public WalkableArea pathExtension;
@@ -54,6 +59,10 @@ public class BlockingObstacle : MonoBehaviour
     public string triggerPull = "Pull";
     [Tooltip("Trigger name for the hide/release animation.")]
     public string triggerHide = "Hide";
+    [Tooltip("Trigger name for returning to idle (used when releasing Puzzle 1).")]
+    public string triggerIdle = "Idle";
+    [Tooltip("Trigger name for the auto-fall animation (used in requiresItem mode).")]
+    public string triggerFall = "Fall";
 
     private float holdTimer = 0f;
     private bool isHolding = false;
@@ -115,12 +124,16 @@ public class BlockingObstacle : MonoBehaviour
     public void StartHold()
     {
         if (completed) return;
+
+        // Both modes play the pull animation as visual feedback
+        if (animator != null && !string.IsNullOrEmpty(triggerPull))
+            animator.SetTrigger(triggerPull);
+
+        if (requiresItem) return; // visual only — no hold timer in item mode
+
         isHolding = true;
         holdTimer = 0f;
         progressUI?.Show(true);
-
-        if (animator != null && !string.IsNullOrEmpty(triggerPull))
-            animator.SetTrigger(triggerPull);
     }
 
     /// <summary>
@@ -133,8 +146,21 @@ public class BlockingObstacle : MonoBehaviour
         progressUI?.SetProgress(0f);
         progressUI?.Show(false);
 
-        if (animator != null && !string.IsNullOrEmpty(triggerHide))
-            animator.SetTrigger(triggerHide);
+        if (animator != null)
+        {
+            if (requiresItem)
+            {
+                // Puzzle 2: requires specific "hide" animation
+                if (!string.IsNullOrEmpty(triggerHide))
+                    animator.SetTrigger(triggerHide);
+            }
+            else
+            {
+                // Puzzle 1: returns to idle
+                if (!string.IsNullOrEmpty(triggerIdle))
+                    animator.SetTrigger(triggerIdle);
+            }
+        }
     }
 
     // Section Entry
@@ -169,6 +195,53 @@ public class BlockingObstacle : MonoBehaviour
 
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
+
+        StartCoroutine(SpawnDebrisSequence());
+    }
+
+    /// <summary>
+    /// Called by an ItemTarget's OnItemUsed event (drag-and-drop).
+    /// Plays the fall animation and auto-completes the obstacle.
+    /// </summary>
+    public void UseItemAndComplete()
+    {
+        if (completed) return;
+
+        completed = true;
+        isHolding = false;
+        progressUI?.Show(false);
+
+        // Disable collider immediately so the player can't interact again
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        if (animator != null && !string.IsNullOrEmpty(triggerFall))
+        {
+            animator.SetTrigger(triggerFall);
+            // Wait for the fall animation to finish, THEN hide and spawn debris
+            StartCoroutine(WaitForFallThenComplete());
+        }
+        else
+        {
+            // No animator — hide immediately and spawn debris
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = false;
+            StartCoroutine(SpawnDebrisSequence());
+        }
+    }
+
+    private IEnumerator WaitForFallThenComplete()
+    {
+        // Wait one frame for the Animator to transition into the Fall state
+        yield return null;
+
+        // Now wait for that clip to finish
+        AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+        yield return new WaitForSeconds(state.length);
+
+        // Animation done — hide the sprite and spawn debris/items
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null) sr.enabled = false;
 
         StartCoroutine(SpawnDebrisSequence());
     }

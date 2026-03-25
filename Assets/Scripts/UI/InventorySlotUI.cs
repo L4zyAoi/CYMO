@@ -101,12 +101,17 @@ public class InventorySlotUI : MonoBehaviour,
     #region Drag
     public void OnBeginDrag(PointerEventData eventData)
     {
+        Debug.Log($"[InventorySlotUI] OnBeginDrag on slot {slotIdx}. InventoryManager exists={InventoryManager.Instance != null}");
+        
         draggedItem = InventoryManager.Instance?.GetSlot(slotIdx);
         if (draggedItem == null) 
         { 
+            Debug.Log($"[InventorySlotUI] Slot {slotIdx} is empty — cancelling drag.");
             eventData.pointerDrag = null; 
             return; 
-        } // nothing to drag
+        }
+
+        Debug.Log($"[InventorySlotUI] Dragging '{draggedItem.itemName}' from slot {slotIdx}. icon={draggedItem.icon?.name ?? "NULL"}");
 
         // Hide tooltip while dragging
         if (tooltipObj != null) tooltipObj.SetActive(false);
@@ -183,6 +188,10 @@ public class InventorySlotUI : MonoBehaviour,
         ghost.GetComponent<RectTransform>().localPosition = localPos;
     }
 
+    [Header("Drop Detection")]
+    [Tooltip("Layer mask for world drop targets. Should match the Interactable layer.")]
+    public LayerMask dropLayerMask;
+
     /// <summary>
     /// Raycast into the world (Physics2D) from the current mouse position
     /// to find an ItemTarget under the cursor.
@@ -190,8 +199,13 @@ public class InventorySlotUI : MonoBehaviour,
     private ItemTarget GetWorldItemTarget()
     {
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Collider2D hit   = Physics2D.OverlapPoint(worldPos);
-        return hit != null ? hit.GetComponent<ItemTarget>() : null;
+        Collider2D[] hits = Physics2D.OverlapPointAll(worldPos, dropLayerMask);
+        foreach (var hit in hits)
+        {
+            ItemTarget t = hit.GetComponent<ItemTarget>();
+            if (t != null) return t;
+        }
+        return null;
     }
 
     /// <summary>
@@ -200,8 +214,13 @@ public class InventorySlotUI : MonoBehaviour,
     private ItemTarget GetHoveredItemTarget(PointerEventData eventData)
     {
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(eventData.position);
-        Collider2D hit   = Physics2D.OverlapPoint(worldPos);
-        return hit != null ? hit.GetComponent<ItemTarget>() : null;
+        Collider2D[] hits = Physics2D.OverlapPointAll(worldPos, dropLayerMask);
+        foreach (var hit in hits)
+        {
+            ItemTarget t = hit.GetComponent<ItemTarget>();
+            if (t != null) return t;
+        }
+        return null;
     }
     #endregion
 }

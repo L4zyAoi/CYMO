@@ -69,6 +69,7 @@ public class PointAndClickController : MonoBehaviour
     }
     private GameObject currentIndicator;
     private BlockingObstacle activeObstacle; // obstacle currently being held
+    private LampPuzzle activeLamp;            // lamp currently being held
     private Action onArrivedCallback;        // fires once when character reaches targetPos
 
     private System.Collections.Generic.List<Vector2> currentPath;
@@ -137,7 +138,7 @@ public class PointAndClickController : MonoBehaviour
                 if (obstacle != null) { activeObstacle = obstacle; activeObstacle.StartHold(); return; }
 
                 LampPuzzle lamp = hit.GetComponent<LampPuzzle>();
-                if (lamp != null) { lamp.ActivateLamp(); return; }
+                if (lamp != null) { activeLamp = lamp; activeLamp.StartHold(); return; }
 
                 SectionExit exit = hit.GetComponent<SectionExit>();
                 if (exit != null) { exit.OnClicked(); return; }
@@ -148,10 +149,18 @@ public class PointAndClickController : MonoBehaviour
             // Clicking empty space does nothing — movement is exit-driven only
         }
 
-        if (Input.GetMouseButtonUp(0) && activeObstacle != null)
+        if (Input.GetMouseButtonUp(0))
         {
-            activeObstacle.CancelHold();
-            activeObstacle = null;
+            if (activeObstacle != null)
+            {
+                activeObstacle.CancelHold();
+                activeObstacle = null;
+            }
+            if (activeLamp != null)
+            {
+                activeLamp.CancelHold();
+                activeLamp = null;
+            }
         }
     }
 

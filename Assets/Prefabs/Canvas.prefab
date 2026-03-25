@@ -945,6 +945,9 @@ MonoBehaviour:
   tooltipObj: {fileID: 3211755535898123200}
   tooltipTxt: {fileID: 5068499574167595142}
   ghostAlpha: 0.7
+  dropLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &3587914458413292404
 GameObject:
   m_ObjectHideFlags: 0
@@ -1433,6 +1436,9 @@ MonoBehaviour:
   tooltipObj: {fileID: 2166364102516589511}
   tooltipTxt: {fileID: 7109675117493925233}
   ghostAlpha: 0.7
+  dropLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &4617744415651082147
 GameObject:
   m_ObjectHideFlags: 0
@@ -1774,6 +1780,9 @@ MonoBehaviour:
   tooltipObj: {fileID: 8640149860900556754}
   tooltipTxt: {fileID: 2840696074994049651}
   ghostAlpha: 0.7
+  dropLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &4829181124245061850
 GameObject:
   m_ObjectHideFlags: 0
@@ -2276,6 +2285,9 @@ MonoBehaviour:
   tooltipObj: {fileID: 3678415152191108598}
   tooltipTxt: {fileID: 4111310827940106936}
   ghostAlpha: 0.7
+  dropLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &7041159717446776051
 GameObject:
   m_ObjectHideFlags: 0

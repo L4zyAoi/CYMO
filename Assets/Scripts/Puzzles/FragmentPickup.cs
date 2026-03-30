@@ -1,9 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// A world fragment of an item. Place several of these in the scene, all pointing
-/// to the same FragmentGroupData. When the last one is collected, the full item
-/// is assembled and a notification is shown.
+/// A world fragment of an item that appears in sequence.
+/// Multiple FragmentPickup objects share a FragmentGroupData.
+/// 
+/// Flow: Fragment 1 visible → Player clicks → Falls/Collects → Fragment 2 appears → etc.
+/// When all fragments in sequence are collected, the full item assembles.
 ///
 /// SETUP:
 ///  1. Set Layer to "Interactable".
@@ -12,7 +14,11 @@ using UnityEngine;
 /// 
 ///  3. Assign the shared FragmentGroupData asset to 'group'.
 /// 
-///  4. (Optional) Assign a collectEffect GameObject (particle/sprite flash).
+///  4. Assign a sequence number (0 for first, 1 for second, etc).
+/// 
+///  5. (Optional) Assign a collectEffect GameObject (particle/sprite flash).
+/// 
+///  6. (Optional) Assign an Animator with "idle" and "fall" triggers.
 /// </summary>
 public class FragmentPickup : MonoBehaviour
 {
@@ -20,9 +26,159 @@ public class FragmentPickup : MonoBehaviour
              "All fragments in the same set must reference the same asset.")]
     public FragmentGroupData group;
 
+    [Tooltip("Sequence order: 0 = first, 1 = second, 2 = third, etc. " +
+             "Only the current sequence number will be visible and interactive.")]
+    public int sequenceIndex = 0;
+
     [Tooltip("Optional: a GameObject (particle/sprite) briefly shown on collection. " +
              "It will be enabled and then destroyed after 2 seconds.")]
     public GameObject collectEffect;
+
+    [Header("Animation")]
+    [Tooltip("Animator component for idle and fall animations.")]
+    public Animator animator;
+    [Tooltip("Trigger name for idle animation (Appearing/Pre-fall).")]
+    public string triggerIdle = "idle";
+    [Tooltip("Trigger name for fall animation (when touched/collected).")]
+    public string triggerFall = "fall";
+    [Tooltip("Trigger name for the steady idle animation AFTER it has fallen (Grounded).")]
+    public string triggerIdlePostFall = "post_fall";
+
+    [Header("Audio")]
+    [Tooltip("Sound played when this fragment is collected.")]
+    public AudioClip collectSFX;
+    [Tooltip("Sound played when the final fragment is collected and item assembles.")]
+    public AudioClip assembleSuccessSFX;
+
+    [Header("Auto-Collect")]
+    [Tooltip("If true, the interaction starts automatically when the player touches it (requires Trigger Collider).")]
+    public bool isAutoCollect = false;
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (isAutoCollect && other.CompareTag("Player"))
+        {
+            TryCollect();
+        }
+    }
+
+    private Collider2D fragmentCollider;
+
+    void Start()
+    {
+        fragmentCollider = GetComponent<Collider2D>();
+        
+        // Show/hide this fragment based on sequence
+        UpdateVisibility();
+    }
+
+    void OnEnable()
+    {
+        if (group != null)
+            group.OnSequenceChanged += UpdateVisibility;
+    }
+
+    void OnDisable()
+    {
+        if (group != null)
+            group.OnSequenceChanged -= UpdateVisibility;
+    }
+
+    private void UpdateVisibility()
+    {
+        if (group == null) return;
+
+        bool isCurrentFragment = (group.CurrentSequenceIndex == sequenceIndex);
+
+        // If this fragment should be hidden (already collected or not yet reached)
+        if (!isCurrentFragment)
+        {
+            // If it's a PAST fragment, it's currently playing its fall animation.
+            // Don't kill it immediately! Wait for the animation to finish.
+            if (sequenceIndex < group.CurrentSequenceIndex)
+            {
+                // Disable collider immediately to prevent double-clicks
+                if (fragmentCollider != null) fragmentCollider.enabled = false;
+                
+                // Keep visuals for a moment during fall, then hide
+                StartCoroutine(HideVisualsAfterDelay(3.5f)); 
+            }
+            else
+            {
+                // It's a FUTURE fragment - keep it invisible but script ACTIVE
+                SetVisualsEnabled(false);
+            }
+        }
+        else
+        {
+            // It's the CURRENT fragment - prepare to show it
+            if (sequenceIndex == 0)
+            {
+                // First fragment appears immediately
+                SetVisualsEnabled(true);
+                TriggerIdle();
+            }
+            else
+            {
+                // Others wait for the previous one to finish its fall
+                StartCoroutine(ShowFragmentWithDelay());
+            }
+        }
+    }
+
+    private void SetVisualsEnabled(bool isEnabled)
+    {
+        // Toggle SpriteRenderer
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null) sr.enabled = isEnabled;
+
+        // Toggle Collider
+        if (fragmentCollider != null) fragmentCollider.enabled = isEnabled;
+
+        // Toggle children (effects, etc)
+        foreach (Transform child in transform)
+            child.gameObject.SetActive(isEnabled);
+    }
+
+    private void TriggerIdle()
+    {
+        if (animator != null && !string.IsNullOrEmpty(triggerIdle))
+        {
+            // We use .Play(state, layer, time) to FORCE the animation to start from frame 0.
+            // Since the animator was already "active" while hidden, this is the only
+            // way to make the "appearing" part of the animation play again.
+            animator.Play(triggerIdle, 0, 0f);
+            Debug.Log($"[FragmentPickup] Sequence {sequenceIndex} idle/appearance forced to frame 0.");
+        }
+    }
+
+    private System.Collections.IEnumerator ShowFragmentWithDelay()
+    {
+        // 1. Wait for PREVIOUS apple to finish its fall
+        yield return new WaitForSeconds(3.5f);
+
+        // 2. Make visible and start the "Appearing" (Idle) animation
+        SetVisualsEnabled(true);
+        TriggerIdle();
+
+        // 3. Keep the collider OFF while it's appearing/growing
+        // (Prevent clicking it until the animation looks "done")
+        if (fragmentCollider != null) fragmentCollider.enabled = false;
+
+        yield return new WaitForSeconds(2.0f); // Adjust this to match your "appearing" animation length
+
+        // 4. Finally enable interaction
+        if (fragmentCollider != null) fragmentCollider.enabled = true;
+        
+        Debug.Log($"[FragmentPickup] Sequence {sequenceIndex} is now fully grown and interactable.");
+    }
+
+    private System.Collections.IEnumerator HideVisualsAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SetVisualsEnabled(false);
+        Debug.Log($"[FragmentPickup] Sequence {sequenceIndex} visuals hidden after animation.");
+    }
 
     // Called by PointAndClickController
     public void TryCollect()
@@ -33,8 +189,24 @@ public class FragmentPickup : MonoBehaviour
             return;
         }
 
-        // Hide this fragment immediately
-        gameObject.SetActive(false);
+        // Safety check: only collect if this is the current sequence
+        if (group.CurrentSequenceIndex != sequenceIndex)
+        {
+            Debug.LogWarning($"[FragmentPickup] Tried to collect sequence {sequenceIndex}, but current is {group.CurrentSequenceIndex}!");
+            return;
+        }
+
+        // Play collect sound
+        if (collectSFX != null && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(collectSFX);
+
+        // Play fall animation IMMEDIATELY
+        if (animator != null && !string.IsNullOrEmpty(triggerFall))
+        {
+            // Use .Play() to force an immediate override of the pre_fall/idle animation
+            animator.Play(triggerFall, 0, 0f);
+            Debug.Log($"[FragmentPickup] Fall animation FORCED for sequence {sequenceIndex}");
+        }
 
         // Play collect effect at the fragment's position
         if (collectEffect != null)
@@ -43,15 +215,80 @@ public class FragmentPickup : MonoBehaviour
             Destroy(fx, 2f);
         }
 
-        bool lastFragment = group.TryCollect();
+        // Disable collider with a delay so animation can start
+        StartCoroutine(DisableColliderDelayed());
 
-        if (lastFragment)
-            OnAllFragmentsCollected();
+        // Advance the sequence
+        bool allCollected = group.CollectFragment(sequenceIndex);
+
+        if (!allCollected)
+        {
+            // Normal sequential apple - it just falls and stays hidden after delay
+        }
         else
-            ShowFragmentHint();
+        {
+            // FINAL APPLE - Special 3-stage sequence (Fall -> Ground Idle -> Collect)
+            StartCoroutine(FinalCollectionSequence());
+        }
     }
 
-    // Assembly
+    private System.Collections.IEnumerator FinalCollectionSequence()
+    {
+        // 1. Fall (Triggered already in TryCollect, but we wait for it to land)
+        Debug.Log("[FragmentPickup] Final Apple: Falling...");
+        yield return new WaitForSeconds(3.0f); // Adjust to match your fall duration
+
+        // 2. Play the grounded idle
+        if (animator != null && !string.IsNullOrEmpty(triggerIdlePostFall))
+        {
+            animator.Play(triggerIdlePostFall, 0, 0f); // Force reset to grounded state
+            Debug.Log("[FragmentPickup] Final Apple: Landed. Playing grounded idle.");
+        }
+
+        // 3. Keep it on the ground for a split second so the player sees it
+        yield return new WaitForSeconds(1.0f);
+
+        // 4. Finally assemble and add to inventory
+        OnAllFragmentsCollected();
+        
+        // Final hide
+        SetVisualsEnabled(false);
+    }
+
+    private System.Collections.IEnumerator DisableColliderDelayed()
+    {
+        // Wait for the 3-second fall animation to complete before disabling collider
+        yield return new WaitForSeconds(3.5f);
+
+        if (fragmentCollider != null)
+        {
+            fragmentCollider.enabled = false;
+            Debug.Log($"[FragmentPickup] Collider disabled for sequence {sequenceIndex}");
+        }
+    }
+
+    private System.Collections.IEnumerator PlayFallAnimationDelayed()
+    {
+        // Small delay to ensure animator state transition
+        yield return null;
+
+        if (animator != null && !string.IsNullOrEmpty(triggerFall))
+        {
+            animator.SetTrigger(triggerFall);
+            Debug.Log($"[FragmentPickup] Fall animation triggered for sequence {sequenceIndex}");
+        }
+    }
+
+    [ContextMenu("DEBUG: Reset Animation Names")]
+    public void ResetAnimationNames()
+    {
+        triggerIdle = "idle";
+        triggerFall = "fall";
+        triggerIdlePostFall = "post_fall";
+        Debug.Log("[FragmentPickup] Animation names reset to idle, fall, and post_fall.");
+    }
+
+    // Assembly (only when final fragment is collected)
     private void OnAllFragmentsCollected()
     {
         if (group.resultItem == null)
@@ -60,24 +297,16 @@ public class FragmentPickup : MonoBehaviour
             return;
         }
 
+        // Play assemble success sound
+        if (assembleSuccessSFX != null && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(assembleSuccessSFX);
+
         bool added = InventoryManager.Instance != null &&
                      InventoryManager.Instance.TryAddItem(group.resultItem);
 
-        string message = added
-            ? $"{group.groupName} assembled!"
-            : $"{group.groupName} assembled — but inventory is full!";
-
-        GameNotification.Show(message);
-    }
-
-    // Per-fragment hint
-    private void ShowFragmentHint()
-    {
-        int remaining = group.RemainingCount;
-        string msg = remaining == 1
-            ? $"Almost there... 1 piece of {group.groupName} left."
-            : $"{remaining} pieces of {group.groupName} left.";
-
-        GameNotification.Show(msg);
+        if (!added)
+        {
+            Debug.LogWarning($"[FragmentPickup] Could not add '{group.groupName}' to inventory — inventory is full!");
+        }
     }
 }

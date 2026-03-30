@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro.Examples;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -53,13 +54,17 @@ public class GameManager : MonoBehaviour
 		public SpriteRenderer background;
 	}
 
-	public ChapterData currChapter { get; private set; }
-    public MapData     currMap     { get; private set; }
-    public int         currSectionIndex { get; private set; }
+	public ChapterData currChapter 			{ get; private set; }
+    public MapData     currMap     			{ get; private set; }
+    public int         currSectionIndex 		{ get; private set; }
     public SectionData currSection =>
         currMap?.GetSection(currSectionIndex);
 
+	// Track sections that have custom music (e.g., lamp lit rooms)
+	private static HashSet<int> sectionsWithCustomMusic = new HashSet<int>();
+
 	public System.Action<int> onSectionEntered;
+	public System.Action<ChapterData> onChapterChanged;
 
     #region Unity callbacks
     void Awake()
@@ -85,6 +90,25 @@ public class GameManager : MonoBehaviour
         RebindSceneReferences();
     }
 
+    void Start()
+    {
+        // on the very first frame the game is actually running, 
+        // ensure the background music for the current section starts.
+        // Awake is often too early for the AudioManager's Mixer to be ready.
+        if (currSection != null && AudioManager.Instance != null)
+        {
+            if (currSection.backgroundMusic != null && currSection.autoPlayMusic)
+            {
+                Debug.Log($"[GameManager] Start() - Re-triggering initial music: {currSection.backgroundMusic.name}");
+                AudioManager.Instance.PlayMusic(currSection.backgroundMusic);
+            }
+            else if (!currSection.autoPlayMusic)
+            {
+                AudioManager.Instance.StopMusic();
+            }
+        }
+    }
+
     /// <summary>
     /// Rebind cameraController and playerTransform to the current scene's objects.
     /// Called after scene loads and in Awake for initial setup.
@@ -98,7 +122,7 @@ public class GameManager : MonoBehaviour
             if (cameraController != null)
                 Debug.Log($"[GameManager] CameraController bound to '{cameraController.gameObject.name}'.");
             else
-                Debug.LogError("[GameManager] No CameraController found in scene! Section transitions will not pan the camera.");
+                Debug.LogWarning("[GameManager] No CameraController found in scene. This is normal in the Main Menu, but required in gameplay scenes.");
         }
 
         // Find player if not assigned or stale
@@ -111,28 +135,63 @@ public class GameManager : MonoBehaviour
                 Debug.Log($"[GameManager] playerTransform bound to '{playerTransform.name}'.");
             }
             else
-                Debug.LogError("[GameManager] No PointAndClickController found in scene! Section transitions will not move the player.");
+                Debug.LogWarning("[GameManager] No PointAndClickController found in scene. This is normal in the Main Menu, but required in gameplay scenes.");
         }
     }
     #endregion
+
+	#region Navigation
+    /// <summary>
+    /// Starts the game from the very beginning (Chapter 1, Map 1).
+    /// Typically called by a "Play" button in the Main Menu.
+    /// Shows the loading screen while the scene is being loaded.
+    /// </summary>
+    public void StartGame()
+    {
+        if (chapters == null || chapters.Length == 0)
+        {
+            Debug.LogError("[GameManager] Cannot StartGame: No chapters assigned!");
+            return;
+        }
+
+        // Show loading screen before starting to load the chapter
+        if (LoadingScreenManager.Instance != null)
+            LoadingScreenManager.Instance.ShowLoadingScreen();
+
+        currChapter = chapters[0];
+        if (currChapter == null) return;
+        
+        GoToMap(currChapter.DefaultMap, 0, currChapter);
+    }
+	#endregion
 
 	#region Section Transitions
 	/// <summary>
 	/// Resolves an exit id (searched across all sections in the map) to a destination section index.
 	/// Falls back to treating the value as a direct section index for backward compatibility.
+	/// exitWalkTarget: the position the player walked to at the exit (used for transition walk animation).
 	/// </summary>
-	public void GoToSectionFromExitOrSection(int exitOrSectionIndex)
+	public void GoToSectionFromExitOrSection(int exitOrSectionIndex, Vector2 exitWalkTarget = default)
 	{
 		if (TryResolveExitIdInMap(exitOrSectionIndex, out SectionData.ExitLink exitLink))
 		{
 			string resolvedExitName = string.IsNullOrWhiteSpace(exitLink.exitName) ? "(unnamed)" : exitLink.exitName;
 			Debug.Log($"[GameManager] Resolved exit id {exitOrSectionIndex} ('{resolvedExitName}') -> section index {exitLink.targetSectionIndex} in map '{currMap?.mapName}'.");
-			GoToSection(exitLink.targetSectionIndex, exitLink.useOverrideSpawnPoint, exitLink.overrideSpawnPoint);
+			
+			// Look up destination exit walk target if specified
+			Vector2 destinationExitWalkTarget = default;
+			if (exitLink.destinationExitId != 0)
+			{
+				destinationExitWalkTarget = GetExitWalkTarget(exitLink.targetSectionIndex, exitLink.destinationExitId);
+				Debug.Log($"[GameManager] Destination exit id {exitLink.destinationExitId} walk target: {destinationExitWalkTarget}");
+			}
+			
+			GoToSection(exitLink.targetSectionIndex, exitLink.useOverrideSpawnPoint, exitLink.overrideSpawnPoint, exitWalkTarget, destinationExitWalkTarget);
 			return;
 		}
 
 		Debug.Log($"[GameManager] Exit id {exitOrSectionIndex} not found in map '{currMap?.mapName}'. Treating as direct section index (backward compatible).");
-		GoToSection(exitOrSectionIndex);
+		GoToSection(exitOrSectionIndex, false, default, exitWalkTarget);
 	}
 
 	/// <summary>
@@ -141,10 +200,10 @@ public class GameManager : MonoBehaviour
 	/// </summary>
 	public void GoToSection(int sectionIndex)
 	{
-		GoToSection(sectionIndex, false, default);
+		GoToSection(sectionIndex, false, default, default, default);
 	}
 
-	private void GoToSection(int sectionIndex, bool useOverrideSpawnPoint, Vector2 overrideSpawnPoint)
+	private void GoToSection(int sectionIndex, bool useOverrideSpawnPoint, Vector2 overrideSpawnPoint, Vector2 sourceExitWalkTarget = default, Vector2 destinationExitWalkTarget = default)
 	{
 		if (currMap == null)
 		{
@@ -171,38 +230,60 @@ public class GameManager : MonoBehaviour
 			return;
 		}
 
+		// Determine movement direction for the transition walk (right if section index increases)
+		Vector2 movementDir = (sectionIndex >= currSectionIndex) ? Vector2.right : Vector2.left;
 		currSectionIndex = sectionIndex;
 
-		// DIAGNOSTIC LOGS
-		Debug.Log($"[GameManager] GoToSection called -> sectionIndex={sectionIndex}, sectionName='{section.sectionName}', defaultSpawnPoint={section.spawnPoint}, useOverrideSpawnPoint={useOverrideSpawnPoint}, overrideSpawnPoint={overrideSpawnPoint}");
-		Debug.Log($"[GameManager] section.cameraBounds={section.cameraBounds}");
-		Debug.Log($"[GameManager] playerTransform={(playerTransform == null ? "NULL" : playerTransform.name)}, cameraController={(cameraController == null ? "NULL" : cameraController.name)}");
-
-		// Find the active PointAndClickController (prefer the one on playerTransform but fallback if needed)
-		PointAndClickController controller = null;
-		if (playerTransform != null)
-			controller = playerTransform.GetComponent<PointAndClickController>();
-
-		if (controller == null)
+		// If TransitionManager exists, play the cinematic walk
+		if (TransitionManager.Instance != null && playerTransform != null)
 		{
-			controller = FindObjectOfType<PointAndClickController>();
-			if (controller != null)
-				Debug.Log($"[GameManager] Using fallback PointAndClickController on '{controller.gameObject.name}'.");
+			StartCoroutine(TransitionManager.Instance.PlayWalkTransition(playerTransform, movementDir, () => {
+				// This code runs while the screen is black
+				SnapToSectionImmediate(section, useOverrideSpawnPoint, overrideSpawnPoint, false); // Don't trigger cutscene yet
+			}, () => {
+				// This callback runs AFTER the walk finishes and screen fades back in
+				// Restore the player to their actual spawn point
+				RestorePlayerToSpawnPoint(section, useOverrideSpawnPoint, overrideSpawnPoint);
+				
+				// NOW trigger the cutscene (after screen is visible again)
+				TriggerSectionCutscene(section);
+			}, sourceExitWalkTarget, destinationExitWalkTarget));
 		}
-
-		// Stop movement on the actual controller and teleport it (prevent physics carry-over)
-		if (controller != null)
+		else
 		{
-			controller.StopMovement();
+			// Fallback: simple snap if TransitionManager is missing
+			SnapToSectionImmediate(section, useOverrideSpawnPoint, overrideSpawnPoint);
+		}
+	}
 
-			Vector2 spawnPoint = useOverrideSpawnPoint ? overrideSpawnPoint : section.spawnPoint;
+	/// <summary>
+	/// Snaps the camera and player to the new section immediately.
+	/// Used as the "middle" part of the walk transition or as a fallback.
+	/// triggerCutscene: if true, will play cutscenes on section entry. Set to false during transitions (cutscene plays after transition completes).
+	/// </summary>
+	private void SnapToSectionImmediate(SectionData section, bool useOverride, Vector2 overridePos, bool triggerCutscene = true)
+	{
+		// 1. Move Camera
+		if (cameraController != null)
+			cameraController.MoveToSection(section);
 
-			// Teleport the controller GameObject (so the same Rigidbody2D is moved)
-			controller.transform.position = spawnPoint;
-			Debug.Log($"[GameManager] Player teleported to spawnPoint: {spawnPoint}" +
-				(useOverrideSpawnPoint ? " (from ExitLink override)" : " (from SectionData.spawnPoint)"));
+		// 2. Teleport Player
+		if (playerTransform != null)
+		{
+			Vector2 spawnPoint = useOverride ? overridePos : section.spawnPoint;
+			
+		// Stop existing movement
+			PointAndClickController controller = playerTransform.GetComponent<PointAndClickController>();
+			if (controller != null)
+			{
+				controller.StopMovement();
+				controller.ResetPerspectiveScale();
+			}
 
-			Rigidbody2D rb = controller.GetComponent<Rigidbody2D>();
+			// Physical teleport
+			playerTransform.position = new Vector3(spawnPoint.x, spawnPoint.y, playerTransform.position.z);
+			
+			Rigidbody2D rb = playerTransform.GetComponent<Rigidbody2D>();
 			if (rb != null)
 			{
 				rb.position = spawnPoint;
@@ -210,36 +291,11 @@ public class GameManager : MonoBehaviour
 				rb.angularVelocity = 0f;
 				rb.Sleep();
 			}
-
-			// Keep playerTransform in sync with the active controller for future references
-			if (playerTransform != controller.transform)
-			{
-				playerTransform = controller.transform;
-				Debug.Log("[GameManager] playerTransform updated to active controller transform.");
-			}
-		}
-		else
-		{
-			// Last resort: move whatever was assigned in the inspector
-			if (playerTransform != null)
-			{
-				Debug.LogWarning("[GameManager] No PointAndClickController found; moving playerTransform directly.");
-				Vector2 spawnPoint = useOverrideSpawnPoint ? overrideSpawnPoint : section.spawnPoint;
-				playerTransform.position = spawnPoint;
-			}
-			else
-			{
-				Debug.LogError("[GameManager] No playerTransform and no PointAndClickController found; cannot place player on section entry.");
-			}
 		}
 
-		// Tell the camera to move to this section's bounds
+		// 3. Background Fitting
 		if (cameraController != null)
 		{
-			cameraController.MoveToSection(section);
-			Debug.Log("[GameManager] cameraController.MoveToSection invoked with cameraBounds: " + section.cameraBounds);
-
-			// If a mapped background exists for this section index, schedule fit.
 			SpriteRenderer bg = FindBackgroundForSection(currSectionIndex);
 			if (bg != null)
 			{
@@ -249,7 +305,6 @@ public class GameManager : MonoBehaviour
 			else
 			{
 				Debug.Log($"[GameManager] No mapped background for section index {currSectionIndex}.");
-				// Ensure no stale inspector background is used by controller
 				cameraController.backgroundToFit = null;
 			}
 		}
@@ -258,17 +313,92 @@ public class GameManager : MonoBehaviour
 			Debug.LogError("[GameManager] cameraController is null — camera will NOT pan. Did you assign it in the Inspector or is it from a stale scene?");
 		}
 
+
+		// 3. Background Music
+		if (AudioManager.Instance != null)
+		{
+			// Skip music if this section has custom music (e.g., lamp is lit)
+			if (sectionsWithCustomMusic.Contains(currSectionIndex))
+			{
+				Debug.Log($"[GameManager] Section {currSectionIndex} has custom music. Skipping autoPlayMusic.");
+			}
+			// Only play music if BOTH autoPlayMusic is enabled AND backgroundMusic is assigned
+			else if (section.autoPlayMusic && section.backgroundMusic != null)
+			{
+				AudioManager.Instance.PlayMusic(section.backgroundMusic);
+				Debug.Log($"[GameManager] Playing background music for section: {section.backgroundMusic.name}");
+			}
+			else
+			{
+				// Always stop music when autoPlayMusic is disabled OR no music is assigned
+				AudioManager.Instance.StopMusic();
+				Debug.Log($"[GameManager] Section has autoPlayMusic disabled or no backgroundMusic assigned. Stopping all music.");
+			}
+		}
+
+		// 4. Fire Events
 		Debug.Log($"[GameManager] Entered section: {section.sectionName}");
-		onSectionEntered?.Invoke(sectionIndex);
+		onSectionEntered?.Invoke(currSectionIndex);
+
+		// 5. Trigger Cutscene (if assigned and not yet played)
+		// NOTE: During transitions, cutscenes are triggered AFTER the black screen fades away
+		if (triggerCutscene)
+		{
+			TriggerSectionCutscene(section);
+		}
+	}
+
+	/// <summary>
+	/// Triggers a cutscene for a section (if one is assigned).
+	/// Called after the section is fully loaded and visible.
+	/// </summary>
+	private void TriggerSectionCutscene(SectionData section)
+	{
+		if (section.onEnterCutsceneNames == null || section.onEnterCutsceneNames.Length == 0)
+			return;
+
+		if (CutsceneManager.Instance == null)
+		{
+			Debug.LogWarning("[GameManager] TriggerSectionCutscene: CutsceneManager.Instance is null!");
+			return;
+		}
+
+		Debug.Log($"[GameManager] Triggering {section.onEnterCutsceneNames.Length} cutscene(s) for section '{section.sectionName}'.");
+		CutsceneManager.Instance.PlayCutsceneSequence(section.onEnterCutsceneNames, section.cutscenePlayOnce);
 	}
 	#endregion
 
+	/// <summary>
+	/// Restores the player to their actual spawn point after the transition walk finishes.
+	/// Called after the screen fades back in.
+	/// </summary>
+	private void RestorePlayerToSpawnPoint(SectionData section, bool useOverride, Vector2 overridePos)
+	{
+		if (playerTransform == null) return;
+
+		Vector2 spawnPoint = useOverride ? overridePos : section.spawnPoint;
+		playerTransform.position = new Vector3(spawnPoint.x, spawnPoint.y, playerTransform.position.z);
+
+		Rigidbody2D rb = playerTransform.GetComponent<Rigidbody2D>();
+		if (rb != null)
+		{
+			rb.position = spawnPoint;
+			rb.linearVelocity = Vector2.zero;
+		}
+
+		Debug.Log($"[GameManager] Player restored to spawn point: {spawnPoint}");
+	}
+
 	#region Map Transitions
-	public void GoToMap(MapData targetMap, int sectionIndex = 0, ChapterData targetChapter = null)
+	public void GoToMap(MapData targetMap, int sectionIndex = 0, ChapterData targetChapter = null, Vector2 exitWalkTarget = default)
 	{
 		if (targetMap == null) return;
 
-		if (targetChapter != null) currChapter = targetChapter;
+		if (targetChapter != null && targetChapter != currChapter)
+		{
+			currChapter = targetChapter;
+			onChapterChanged?.Invoke(currChapter);
+		}
 		currMap = targetMap;
 
 		// Clamp the requested sectionIndex to the targetMap's section range before storing and using it.
@@ -278,13 +408,42 @@ public class GameManager : MonoBehaviour
 
 		currSectionIndex = clampedIndex;
 
-		StartCoroutine(LoadMapScene(targetMap.sceneName, clampedIndex));
+		StartCoroutine(LoadMapScene(targetMap.sceneName, clampedIndex, exitWalkTarget));
 	}
 
-	private IEnumerator LoadMapScene(string sceneName, int sectionIndex)
+	private IEnumerator LoadMapScene(string sceneName, int sectionIndex, Vector2 exitWalkTarget = default)
 	{
+		// Give the loading screen a moment to fully fade in before the scene swap
 		AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
-		yield return new WaitUntil(() => op.isDone);
+		op.allowSceneActivation = false;
+
+		// Wait for scene to be ready (90% loaded) AND a minimum display time
+		float minDisplayTime = 2.0f;
+		float timer = 0f;
+		while (timer < minDisplayTime || op.progress < 0.9f)
+		{
+			timer += Time.deltaTime;
+			if (op.progress >= 0.9f && timer >= minDisplayTime)
+				break;
+			yield return null;
+		}
+
+		// Now let the scene actually switch
+		op.allowSceneActivation = true;
+		
+		// Wait for the scene load to complete, with a fallback timeout
+		float sceneActivationTimeout = 10f;
+		float activationTimer = 0f;
+		while (!op.isDone && activationTimer < sceneActivationTimeout)
+		{
+			activationTimer += Time.deltaTime;
+			yield return null;
+		}
+		
+		if (!op.isDone)
+		{
+			Debug.LogWarning($"[GameManager] Scene '{sceneName}' did not fully activate within {sceneActivationTimeout} seconds. Proceeding anyway.");
+		}
 
 		Debug.Log($"[GameManager] Scene '{sceneName}' loaded. Rebinding scene references...");
 
@@ -309,11 +468,54 @@ public class GameManager : MonoBehaviour
 		Debug.Log($"[GameManager] LoadMapScene validation passed. currMap='{currMap.mapName}', targetSection='{targetSection.sectionName}', sectionIndex={sectionIndex}");
 
 		// After re-binding and the scene is ready, place the player in the requested section
-		GoToSection(sectionIndex);
+		GoToSectionFromExitOrSection(sectionIndex, exitWalkTarget);
+
+		// Hide the loading screen now that the scene is loaded and ready
+		if (LoadingScreenManager.Instance != null)
+			LoadingScreenManager.Instance.OnSceneLoadComplete();
 	}
 	#endregion
 
+	/// <summary>
+	/// Mark a section as having custom music (e.g., a puzzle solved).
+	/// This prevents the section's autoPlayMusic from restarting when re-entering.
+	/// </summary>
+	public static void MarkSectionWithCustomMusic(int sectionIndex)
+	{
+		sectionsWithCustomMusic.Add(sectionIndex);
+		Debug.Log($"[GameManager] Section {sectionIndex} marked as having custom music.");
+	}
+
 	#region Helpers
+	/// <summary>
+	/// Get the walk target of an exit in a specific section.
+	/// Used to find the destination exit's walk target for transitions.
+	/// </summary>
+	private Vector2 GetExitWalkTarget(int sectionIndex, int exitId)
+	{
+		if (currMap == null || currMap.sections == null || sectionIndex < 0 || sectionIndex >= currMap.sections.Length)
+			return default;
+
+		SectionData section = currMap.sections[sectionIndex];
+		if (section == null || section.exits == null)
+			return default;
+
+		// Find the SectionExit component in the scene with this exitId in this section
+		// For now, we'll search through all SectionExits
+		SectionExit[] allExits = FindObjectsOfType<SectionExit>();
+		foreach (SectionExit exit in allExits)
+		{
+			if (exit.exitId == exitId)
+			{
+				Debug.Log($"[GameManager] Found exit {exitId} walk target: {exit.walkTarget}");
+				return exit.walkTarget;
+			}
+		}
+
+		Debug.LogWarning($"[GameManager] Could not find exit id {exitId} in section {sectionIndex} to get walk target.");
+		return default;
+	}
+
 	/// <summary>
 	/// Search all sections in the current map for a matching exit id.
 	/// This allows exits in one section to reference mappings defined in any section.

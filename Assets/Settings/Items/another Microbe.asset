@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2cdad43f7fd4f4c9daddb382cab798, type: 3}
+  m_Name: another Microbe
+  m_EditorClassIdentifier: 
+  itemName: Microbe
+  description: 
+  icon: {fileID: 3880043855058682360, guid: 06c527f717eecc248b062b7cb9f8a3d9, type: 3}
+  emptyBadgeIcon: {fileID: -5511468754196065913, guid: 8eb3793aa2a2b99438ce3d455a86ab9b, type: 3}
+  isQuestItem: 1

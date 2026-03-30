@@ -17,6 +17,9 @@ public class ChapterData : ScriptableObject
     [Tooltip("Index of the map the player enters when starting this chapter.")]
     public int defaultMapIndex = 0;
 
+    [Tooltip("All quest items (badges) that are relevant to this chapter. These will be displayed as slots in the Progress Panel.")]
+    public ItemData[] chapterBadges = new ItemData[0];
+
     #region Helpers
     /// <summary>
     /// Returns the entry map for this chapter.

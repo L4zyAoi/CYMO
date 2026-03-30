@@ -16,4 +16,10 @@ public class ItemData : ScriptableObject
 
     [Tooltip("Icon displayed in the inventory slot.")]
     public Sprite icon;
+
+    [Tooltip("Optional: The 'empty frame' sprite shown when this quest item hasn't been collected yet.")]
+    public Sprite emptyBadgeIcon;
+
+    [Tooltip("If true, this item appearing in the world will be collected as a 'badge' in the Progress Panel instead of taking up one of the 4 inventory slots.")]
+    public bool isQuestItem = false;
 }

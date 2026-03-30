@@ -116,12 +116,15 @@ public class WalkableArea : MonoBehaviour
     /// </summary>
     public static System.Collections.Generic.List<Vector2> GetPath(WalkableArea[] areas, Vector2 start, Vector2 target, float inset = 0.3f)
     {
-        System.Collections.Generic.List<WalkableArea> activeAreas = new System.Collections.Generic.List<WalkableArea>();
+        // Filter active areas more efficiently
+        System.Collections.Generic.List<WalkableArea> activeAreas = new System.Collections.Generic.List<WalkableArea>(areas != null ? areas.Length : 0);
         if (areas != null)
         {
             foreach (var a in areas)
+            {
                 if (a != null && a.isActiveAndEnabled && a.poly != null)
                     activeAreas.Add(a);
+            }
         }
 
         if (activeAreas.Count == 0) return new System.Collections.Generic.List<Vector2>() { target };

@@ -16,37 +16,53 @@ MonoBehaviour:
   sceneName: KidneyScene
   sections:
   - sectionName: Spawn point
-    spawnPoint: {x: 0, y: 0}
+    spawnPoint: {x: -1, y: 1.34}
     cameraBounds:
       serializedVersion: 2
       x: 0
       y: 0
       width: 0
       height: 0
+    autoPlayMusic: 1
+    backgroundMusic: {fileID: 8300000, guid: 786ae336df08f8641b0c7e9e014bd0b5, type: 3}
+    usePerspectiveScaling: 1
+    perspectiveAnchorObjects:
+    - {fileID: 0}
+    topY: 5.33
+    bottomY: 0.69
+    minScale: 0.1
+    maxScale: 0.4
+    onEnterCutsceneNames: []
+    cutscenePlayOnce: 1
     exits:
     - exitName: section 1 entry
       exitId: 0
       targetSectionIndex: 0
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
     - exitName: section 2 entry
       exitId: 1
       targetSectionIndex: 0
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
     - exitName: section 3 entry
       exitId: 2
       targetSectionIndex: 0
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
     - exitName: section 4 entry
       exitId: 3
       targetSectionIndex: 0
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
     - exitName: section 5 entry
       exitId: 4
       targetSectionIndex: 0
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
   - sectionName: Section 1
@@ -57,10 +73,21 @@ MonoBehaviour:
       y: 32.9
       width: 0
       height: 0
+    autoPlayMusic: 1
+    backgroundMusic: {fileID: 8300000, guid: 1f3b0d25d217ddb408fb8f61414c0b14, type: 3}
+    usePerspectiveScaling: 1
+    perspectiveAnchorObjects: []
+    topY: 26.5
+    bottomY: 30.23
+    minScale: 0.5
+    maxScale: 1
+    onEnterCutsceneNames: []
+    cutscenePlayOnce: 1
     exits:
     - exitName: section 1 exit
       exitId: 5
       targetSectionIndex: 1
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
   - sectionName: Section 2
@@ -71,10 +98,21 @@ MonoBehaviour:
       y: 19.3
       width: 0
       height: 0
+    autoPlayMusic: 1
+    backgroundMusic: {fileID: 8300000, guid: 8a940bf6560b54d48a7b283720eb561a, type: 3}
+    usePerspectiveScaling: 1
+    perspectiveAnchorObjects: []
+    topY: 18.21
+    bottomY: 17.55
+    minScale: 0.5
+    maxScale: 0.8
+    onEnterCutsceneNames: []
+    cutscenePlayOnce: 1
     exits:
     - exitName: Section 2 exit
       exitId: 6
       targetSectionIndex: 2
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
   - sectionName: Section 3
@@ -85,38 +123,73 @@ MonoBehaviour:
       y: 0.5
       width: 0
       height: 0
+    autoPlayMusic: 1
+    backgroundMusic: {fileID: 8300000, guid: ed587d7f2dc73e14bbf16cd81fcc0922, type: 3}
+    usePerspectiveScaling: 1
+    perspectiveAnchorObjects: []
+    topY: 0.18
+    bottomY: -1.49
+    minScale: 0.5
+    maxScale: 0.8
+    onEnterCutsceneNames:
+    - zone 3 cut 1
+    - zone 3 cut 2
+    cutscenePlayOnce: 1
     exits:
     - exitName: Section 3 exit
       exitId: 7
       targetSectionIndex: 3
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
   - sectionName: Section 4
-    spawnPoint: {x: -25.9, y: -16.1}
+    spawnPoint: {x: -22.14, y: -17.59}
     cameraBounds:
       serializedVersion: 2
       x: -25.9
       y: -16.1
       width: 0
       height: 0
+    autoPlayMusic: 1
+    backgroundMusic: {fileID: 8300000, guid: b8ffbaa7c96e16040986a61af1d6ec3a, type: 3}
+    usePerspectiveScaling: 1
+    perspectiveAnchorObjects: []
+    topY: -11.03
+    bottomY: -17.59
+    minScale: 0.4
+    maxScale: 0.8
+    onEnterCutsceneNames: []
+    cutscenePlayOnce: 1
     exits:
     - exitName: Section 4 exit
       exitId: 8
       targetSectionIndex: 4
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
-  - sectionName: Section 5 exit
-    spawnPoint: {x: -7.2, y: -35.2}
+  - sectionName: Section 5
+    spawnPoint: {x: -4.3, y: -36.76}
     cameraBounds:
       serializedVersion: 2
       x: -7.2
       y: -35.2
       width: 0
       height: 0
+    autoPlayMusic: 0
+    backgroundMusic: {fileID: 8300000, guid: 971c6ebd041bdb34f9b8ec8163ab512d, type: 3}
+    usePerspectiveScaling: 1
+    perspectiveAnchorObjects: []
+    topY: -35.21
+    bottomY: -36.76
+    minScale: 0.5
+    maxScale: 0.8
+    onEnterCutsceneNames: []
+    cutscenePlayOnce: 1
     exits:
     - exitName: Section 5 exit
       exitId: 9
       targetSectionIndex: 5
+      destinationExitId: 0
       useOverrideSpawnPoint: 0
       overrideSpawnPoint: {x: 0, y: 0}
   defaultSectionIndex: 0

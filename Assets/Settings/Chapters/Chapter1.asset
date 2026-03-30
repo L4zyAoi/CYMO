@@ -16,3 +16,6 @@ MonoBehaviour:
   maps:
   - {fileID: 11400000, guid: ebe11d33553609842a6e6a23975dfef5, type: 2}
   defaultMapIndex: 0
+  chapterBadges:
+  - {fileID: 11400000, guid: b462f104fd6d89f47aeb69fb52a8fe6e, type: 2}
+  - {fileID: 11400000, guid: 22163b8bc311aaf4ab25ad7aedd3e6b9, type: 2}

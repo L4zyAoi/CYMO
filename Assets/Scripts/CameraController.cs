@@ -43,6 +43,8 @@ public class CameraController : MonoBehaviour
 	// backgroundBounds is set when FitToBackground is called
 	private Rect backgroundBounds;
 	private bool hasBackgroundBounds = false;
+	private Rect cachedActiveBounds;
+	private bool activeBoundsDirty = true; // Invalidate cache when bounds change
 
 	private Camera cam;
 	private Coroutine panCoroutine;
@@ -78,6 +80,7 @@ public class CameraController : MonoBehaviour
 
 		// Set the section bounds used for clamping
 		sectionBounds = section.cameraBounds;
+		activeBoundsDirty = true; // Invalidate cache when bounds change
 
 		Debug.Log($"[CameraController] MoveToSection -> received cameraBounds={sectionBounds}, cam.orthographicSize={cam.orthographicSize}");
 
@@ -143,6 +146,7 @@ public class CameraController : MonoBehaviour
 			bgWorldSize.y
 		);
 		hasBackgroundBounds = true;
+		activeBoundsDirty = true; // Invalidate cache when bounds change
 
 		if (overrideBounds)
 		{
@@ -164,22 +168,37 @@ public class CameraController : MonoBehaviour
 	#region Helpers
 	private Rect GetActiveBounds()
 	{
+		// Return cached result if not dirty
+		if (!activeBoundsDirty)
+		{
+			return cachedActiveBounds;
+		}
+
 		// Choose which rect to use according to clampMode and availability
 		switch (clampMode)
 		{
 			case ClampMode.BackgroundOnly:
-				if (hasBackgroundBounds) return backgroundBounds;
-				return sectionBounds;
+				if (hasBackgroundBounds)
+					cachedActiveBounds = backgroundBounds;
+				else
+					cachedActiveBounds = sectionBounds;
+				break;
 
 			case ClampMode.Union:
 				if (hasBackgroundBounds)
-					return UnionRect(sectionBounds, backgroundBounds);
-				return sectionBounds;
+					cachedActiveBounds = UnionRect(sectionBounds, backgroundBounds);
+				else
+					cachedActiveBounds = sectionBounds;
+				break;
 
 			case ClampMode.SectionOnly:
 			default:
-				return sectionBounds;
+				cachedActiveBounds = sectionBounds;
+				break;
 		}
+
+		activeBoundsDirty = false;
+		return cachedActiveBounds;
 	}
 
 	private Rect UnionRect(Rect a, Rect b)

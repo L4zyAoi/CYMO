@@ -43,6 +43,9 @@ public class BlockingObstacle : MonoBehaviour
 
     [Tooltip("Delay in seconds between the obstacle disappearing and the debris/item appearing.")]
     public float debrisDelay = 0.3f;
+    
+    [Tooltip("If true, the quest item/badge will be automatically added to inventory when it spawns.")]
+    public bool autoCollectBadge = true;
 
     [Tooltip("Fired after the full pull sequence completes.")]
     public UnityEvent OnPulled;
@@ -53,6 +56,9 @@ public class BlockingObstacle : MonoBehaviour
 
     [Header("Animation (Optional)")]
     public Animator animator;
+    [Tooltip("Delay in seconds before the entry animation plays when entering the section. " +
+             "Recommend matching TransitionManager.blackScreenDuration + TransitionManager.fadeDuration (e.g., 0.8 + 0.5 = 1.3s)")]
+    public float entryAnimationDelay = 1.3f;
     [Tooltip("Trigger name for the first entry animation.")]
     public string triggerEntry = "Entry";
     [Tooltip("Trigger name for the pulling animation.")]
@@ -63,6 +69,12 @@ public class BlockingObstacle : MonoBehaviour
     public string triggerIdle = "Idle";
     [Tooltip("Trigger name for the auto-fall animation (used in requiresItem mode).")]
     public string triggerFall = "Fall";
+
+    [Header("Audio")]
+    public AudioClip pullSFX;
+    public AudioClip successSFX;
+    [Tooltip("Sound when the hide/release animation plays (item mode only).")]
+    public AudioClip hideAnimationSFX;
 
     private float holdTimer = 0f;
     private bool isHolding = false;
@@ -125,12 +137,22 @@ public class BlockingObstacle : MonoBehaviour
     {
         if (completed) return;
 
+        Debug.Log($"[BlockingObstacle] StartHold triggered on '{gameObject.name}' (holdDuration: {holdDuration})");
+
         // Both modes play the pull animation as visual feedback
         if (animator != null && !string.IsNullOrEmpty(triggerPull))
             animator.SetTrigger(triggerPull);
 
-        if (requiresItem) return; // visual only — no hold timer in item mode
+        // Play looping pull sound for BOTH puzzle types
+        if (pullSFX != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StartLoopingSFX(pullSFX);
+        }
 
+        // Item mode: just animation, no hold timer
+        if (requiresItem) return;
+
+        // Pull mode: enable hold timer
         isHolding = true;
         holdTimer = 0f;
         progressUI?.Show(true);
@@ -141,10 +163,14 @@ public class BlockingObstacle : MonoBehaviour
     /// </summary>
     public void CancelHold()
     {
+        if (completed) return;
+
         isHolding = false;
         holdTimer = 0f;
         progressUI?.SetProgress(0f);
         progressUI?.Show(false);
+
+        if (pullSFX != null) AudioManager.Instance?.StopLoopingSFX(pullSFX);
 
         if (animator != null)
         {
@@ -153,6 +179,12 @@ public class BlockingObstacle : MonoBehaviour
                 // Puzzle 2: requires specific "hide" animation
                 if (!string.IsNullOrEmpty(triggerHide))
                     animator.SetTrigger(triggerHide);
+                
+                // Play hide animation sound
+                if (hideAnimationSFX != null && AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX(hideAnimationSFX);
+                }
             }
             else
             {
@@ -168,28 +200,100 @@ public class BlockingObstacle : MonoBehaviour
     {
         if (completed) return;
 
-        // Only play the entry animation if the player actually walked into OUR section
-        if (sectionIndex == mySectionIndex)
+        // If leaving OUR section, reset animator to idle
+        if (sectionIndex != mySectionIndex)
         {
-            if (animator != null && !string.IsNullOrEmpty(triggerEntry))
-                animator.SetTrigger(triggerEntry);
-            
-            // Unsubscribe — the entry anim only ever plays once.
-            if (GameManager.Instance != null)
-                GameManager.Instance.onSectionEntered -= OnSectionEntered;
+            ResetAnimatorToIdle();
+            return;
+        }
+
+        // Entering OUR section - play entry animation
+        if (animator != null && !string.IsNullOrEmpty(triggerEntry))
+        {
+            // Start coroutine to delay the entry animation
+            StartCoroutine(PlayEntryAnimationDelayed());
+        }
+        
+        // Keep subscribed so entry animation re-triggers if player re-enters
+        // (Only unsubscribe when puzzle is completed)
+    }
+
+    private void ResetAnimatorToIdle()
+    {
+        if (animator != null && !string.IsNullOrEmpty(triggerIdle) && !completed)
+        {
+            animator.SetTrigger(triggerIdle);
+            Debug.Log($"[BlockingObstacle] Animator reset to idle for section {mySectionIndex}");
+        }
+    }
+
+    private IEnumerator PlayEntryAnimationDelayed()
+    {
+        if (entryAnimationDelay > 0f)
+        {
+            Debug.Log($"[BlockingObstacle] Entry animation delayed by {entryAnimationDelay}s");
+            yield return new WaitForSeconds(entryAnimationDelay);
+        }
+
+        if (animator != null && !string.IsNullOrEmpty(triggerEntry))
+        {
+            animator.SetTrigger(triggerEntry);
+            Debug.Log($"[BlockingObstacle] Entry animation triggered for section {mySectionIndex}");
         }
     }
 
     #region Logic
     private void CompletePull()
     {
+        Debug.Log($"[BlockingObstacle] CompletePull reached on '{gameObject.name}'. Starting debris sequence.");
         completed = true;
         isHolding = false;
         progressUI?.Show(false);
 
-        // Hide visually and disable interaction — NOT SetActive(false)!
-        // SetActive(false) kills all coroutines on this GameObject before
-        // SpawnDebrisSequence() can finish, causing "Coroutine on inactive object".
+        // Unsubscribe from section entry now that puzzle is complete
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.onSectionEntered -= OnSectionEntered;
+            Debug.Log("[BlockingObstacle] Unsubscribed from section entry (puzzle complete).");
+        }
+
+        if (pullSFX != null)
+        {
+            if (AudioManager.Instance != null)
+            {
+                Debug.Log($"[BlockingObstacle] Stopping looping SFX: '{pullSFX.name}'");
+                AudioManager.Instance.StopLoopingSFX(pullSFX);
+            }
+            else
+            {
+                Debug.LogError("[BlockingObstacle] CompletePull: AudioManager.Instance is NULL!");
+            }
+        }
+        
+        if (successSFX != null)
+        {
+            Debug.Log($"[BlockingObstacle] Attempting to play success SFX: '{successSFX.name}'");
+            if (AudioManager.Instance != null)
+            {
+                Debug.Log("[BlockingObstacle] Calling AudioManager.PlaySFX...");
+                AudioManager.Instance.PlaySFX(successSFX);
+                Debug.Log("[BlockingObstacle] AudioManager.PlaySFX call completed.");
+            }
+            else
+            {
+                Debug.LogError($"[BlockingObstacle] Cannot play successSFX on '{gameObject.name}' because AudioManager.Instance is NULL! Ensure the AudioManager prefab is in your scene.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[BlockingObstacle] CompletePull: successSFX is not assigned!");
+        }
+
+        // SAFETY: If the animator was controlling children (like the quest item), 
+        // disabling it now prevents it from hiding the badge as it spawns.
+        if (animator != null) animator.enabled = false;
+
+        // Hide visually and disable interaction
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.enabled = false;
 
@@ -211,9 +315,30 @@ public class BlockingObstacle : MonoBehaviour
         isHolding = false;
         progressUI?.Show(false);
 
+        // Unsubscribe from section entry now that puzzle is complete
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.onSectionEntered -= OnSectionEntered;
+            Debug.Log("[BlockingObstacle] Unsubscribed from section entry (puzzle complete).");
+        }
+
         // Disable collider immediately so the player can't interact again
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
+
+        if (successSFX != null)
+        {
+            Debug.Log($"[BlockingObstacle] UseItemAndComplete: Playing success SFX '{successSFX.name}'");
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(successSFX);
+                Debug.Log("[BlockingObstacle] PlaySFX call completed.");
+            }
+            else
+            {
+                Debug.LogError($"[BlockingObstacle] Cannot play successSFX on '{gameObject.name}' because AudioManager.Instance is NULL!");
+            }
+        }
 
         if (animator != null && !string.IsNullOrEmpty(triggerFall))
         {
@@ -248,19 +373,51 @@ public class BlockingObstacle : MonoBehaviour
 
     private IEnumerator SpawnDebrisSequence()
     {
+        Debug.Log($"[BlockingObstacle] SpawnDebrisSequence waiting {debrisDelay}s...");
         yield return new WaitForSeconds(debrisDelay);
 
         // Open the path
         if (pathExtension != null)
+        {
             pathExtension.gameObject.SetActive(true);
+            Debug.Log("[BlockingObstacle] Path extension enabled.");
+        }
 
         // Play debris animation/particles
         if (debrisObject != null)
+        {
             debrisObject.SetActive(true);
+            Debug.Log("[BlockingObstacle] Debris object enabled.");
+        }
 
         // Make the quest item collectible
+        if (questItem == null)
+        {
+            // FALLBACK: If the reference is missing, check the children automatically
+            questItem = GetComponentInChildren<PickupItem>(true);
+            if (questItem != null) 
+                Debug.Log($"[BlockingObstacle] Found missing questItem reference automatically in children: '{questItem.name}'");
+        }
+
         if (questItem != null)
+        {
             questItem.gameObject.SetActive(true);
+            Debug.Log($"[BlockingObstacle] Quest item '{questItem.name}' enabled!");
+            
+            if (autoCollectBadge)
+            {
+                Debug.Log($"[BlockingObstacle] Auto-collecting quest item: '{questItem.name}'");
+                bool success = questItem.TryPickup();
+                if (success)
+                    Debug.Log("[BlockingObstacle] Auto-collect successful.");
+                else
+                    Debug.LogWarning("[BlockingObstacle] Auto-collect failed (perhaps inventory is full?). Player must click manually.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[BlockingObstacle] questItem is NULL! No badge will be dropped.");
+        }
 
         OnPulled?.Invoke();
     }

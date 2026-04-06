@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// A global atmospheric effect that attaches to the Main Camera.
 /// It creates/manages a Particle System that simulates drifting dust 
-/// particles covering the screen.
+/// particles covering the screen with circular, blurred particles.
 /// </summary>
 [RequireComponent(typeof(Camera))]
 public class DustEffect : MonoBehaviour
@@ -23,6 +23,15 @@ public class DustEffect : MonoBehaviour
     [Header("Noise & Drift")]
     public float noiseStrength = 0.5f;
     public float noiseFrequency = 0.5f;
+
+    [Header("Particle Appearance")]
+    [Tooltip("Circle sprite for the dust particles. Leave empty to use default.")]
+    public Sprite circleSprite;
+    [Tooltip("Enable soft glow/blur effect on particles.")]
+    public bool enableBlur = true;
+    [Range(0f, 1f)]
+    [Tooltip("Amount of blur/softness (0 = sharp, 1 = very soft).")]
+    public float blurAmount = 0.5f;
 
     private ParticleSystem dustPS;
     private ParticleSystemRenderer psRenderer;
@@ -86,11 +95,47 @@ public class DustEffect : MonoBehaviour
         colorOverLifetime.color = gradient;
 
         psRenderer = dustPS.GetComponent<ParticleSystemRenderer>();
-        // Use default particle if no material assigned
-        if (psRenderer.sharedMaterial == null)
+        psRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+
+        // Apply circle sprite if available
+        if (circleSprite != null)
         {
-            psRenderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
+            psRenderer.material = CreateBlurredCircleMaterial();
         }
+        else
+        {
+            // Fallback to default particle
+            if (psRenderer.sharedMaterial == null)
+            {
+                psRenderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Creates a material with soft edges for a blurred circle effect.
+    /// </summary>
+    private Material CreateBlurredCircleMaterial()
+    {
+        Material mat = new Material(Shader.Find("Sprites/Default"));
+        
+        if (circleSprite != null)
+        {
+            mat.mainTexture = circleSprite.texture;
+        }
+
+        // Adjust material properties for soft/blurred appearance
+        if (enableBlur)
+        {
+            // Reduce alpha to create soft glow effect
+            mat.color = new Color(1f, 1f, 1f, 1f - blurAmount * 0.5f);
+            
+            // Enable additive blending for softer look
+            mat.SetInt("_BlendSrc", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_BlendDst", (int)UnityEngine.Rendering.BlendMode.One);
+        }
+
+        return mat;
     }
 
     // Call this if you change settings at runtime/inspector
@@ -111,5 +156,11 @@ public class DustEffect : MonoBehaviour
         var noise = dustPS.noise;
         noise.strength = noiseStrength;
         noise.frequency = noiseFrequency;
+
+        // Reapply blur material if needed
+        if (psRenderer != null && enableBlur)
+        {
+            psRenderer.material = CreateBlurredCircleMaterial();
+        }
     }
 }

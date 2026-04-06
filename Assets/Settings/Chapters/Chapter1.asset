@@ -16,6 +16,11 @@ MonoBehaviour:
   maps:
   - {fileID: 11400000, guid: ebe11d33553609842a6e6a23975dfef5, type: 2}
   defaultMapIndex: 0
+  openingCutsceneName: 
+  openingCutscenePlayOnce: 1
+  openingVideoClip: {fileID: 32900000, guid: 0ec0876a1f0c3d44fb2d6d8d20d10710, type: 3}
+  openingVideoPlayOnce: 1
   chapterBadges:
   - {fileID: 11400000, guid: b462f104fd6d89f47aeb69fb52a8fe6e, type: 2}
   - {fileID: 11400000, guid: 22163b8bc311aaf4ab25ad7aedd3e6b9, type: 2}
+  - {fileID: 11400000, guid: 00e2f8e1c1d434a41aa42d8250b9837c, type: 2}

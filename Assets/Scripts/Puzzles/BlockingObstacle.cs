@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -30,6 +31,13 @@ public class BlockingObstacle : MonoBehaviour
     [Tooltip("If true, pulling is disabled. Instead, the player must drag an item onto this obstacle " +
              "(via an ItemTarget component) to trigger the auto-fall sequence.")]
     public bool requiresItem = false;
+
+    [Min(1)]
+    [Tooltip("Number of valid items the player must use to complete this obstacle when in item mode.")]
+    public int requiredItemCount = 2;
+
+    // Tracks how many valid items have been used so far
+    private int itemsUsed = 0;
 
     [Header("On Pulled — Scene References")]
     [Tooltip("The WalkableArea that opens up once the obstacle is removed.")]
@@ -69,6 +77,8 @@ public class BlockingObstacle : MonoBehaviour
     public string triggerIdle = "Idle";
     [Tooltip("Trigger name for the auto-fall animation (used in requiresItem mode).")]
     public string triggerFall = "Fall";
+    [Tooltip("Seconds to keep the obstacle sprite visible after the Fall animation completes.")]
+    public float postFallDelay = 3f;
 
     [Header("Audio")]
     public AudioClip pullSFX;
@@ -79,6 +89,7 @@ public class BlockingObstacle : MonoBehaviour
     private float holdTimer = 0f;
     private bool isHolding = false;
     private bool completed = false;
+    private Coroutine pendingHalfSuccessRoutine;
     #endregion
 
     #region Unity Callbacks
@@ -289,18 +300,28 @@ public class BlockingObstacle : MonoBehaviour
             Debug.LogWarning("[BlockingObstacle] CompletePull: successSFX is not assigned!");
         }
 
-        // SAFETY: If the animator was controlling children (like the quest item), 
-        // disabling it now prevents it from hiding the badge as it spawns.
-        if (animator != null) animator.enabled = false;
-
-        // Hide visually and disable interaction
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null) sr.enabled = false;
-
+        // Disable collider immediately so the player can't interact again
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
-        StartCoroutine(SpawnDebrisSequence());
+        // If we have an animator and a Fall trigger, play the Fall animation
+        // and wait for it to finish before hiding visuals and spawning debris.
+        if (animator != null && !string.IsNullOrEmpty(triggerFall))
+        {
+            // Ensure animator is enabled so the Fall animation can play
+            if (!animator.enabled) animator.enabled = true;
+            animator.SetTrigger(triggerFall);
+            // Always attempt to wait for the fall animation; coroutine will
+            // use runtime clips or fallbacks if the state info is unreliable.
+            StartCoroutine(WaitForFallThenComplete());
+        }
+        else
+        {
+            // No animator/fall available — hide immediately and spawn debris
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null) sr.enabled = false;
+            StartCoroutine(SpawnDebrisSequence());
+        }
     }
 
     /// <summary>
@@ -311,9 +332,39 @@ public class BlockingObstacle : MonoBehaviour
     {
         if (completed) return;
 
+        if (pendingHalfSuccessRoutine != null)
+        {
+            StopCoroutine(pendingHalfSuccessRoutine);
+            pendingHalfSuccessRoutine = null;
+        }
+
+        int required = Mathf.Max(1, requiredItemCount);
+
+        // Count this item usage
+        itemsUsed = Mathf.Min(itemsUsed + 1, required);
+        Debug.Log($"[BlockingObstacle] UseItemAndComplete called on '{gameObject.name}' — item {itemsUsed}/{required}");
+
+        // Show progress UI if present
+        progressUI?.Show(true);
+        progressUI?.SetProgress((float)itemsUsed / required);
+
+        // Non-final item use: play the hide/release feedback and wait for more items.
+        // Desired flow: pull -> hide (needs item) -> item1 use -> hide (half success) -> item2 use -> fall.
+        if (itemsUsed < required)
+        {
+            pendingHalfSuccessRoutine = StartCoroutine(PlayHalfSuccessItemUseFeedback());
+
+            Debug.Log($"[BlockingObstacle] Awaiting additional items ({itemsUsed}/{required}).");
+            return;
+        }
+
+        // Finalize completion (same as original behavior)
         completed = true;
         isHolding = false;
         progressUI?.Show(false);
+
+        // Ensure pull-loop is stopped before final fall/success.
+        if (pullSFX != null) AudioManager.Instance?.StopLoopingSFX(pullSFX);
 
         // Unsubscribe from section entry now that puzzle is complete
         if (GameManager.Instance != null)
@@ -342,8 +393,12 @@ public class BlockingObstacle : MonoBehaviour
 
         if (animator != null && !string.IsNullOrEmpty(triggerFall))
         {
+            if (!animator.enabled) animator.enabled = true;
+            if (!string.IsNullOrEmpty(triggerPull)) animator.ResetTrigger(triggerPull);
+            if (!string.IsNullOrEmpty(triggerHide)) animator.ResetTrigger(triggerHide);
             animator.SetTrigger(triggerFall);
-            // Wait for the fall animation to finish, THEN hide and spawn debris
+            // Always attempt to wait for the fall animation; coroutine will
+            // timeout and fall back if the animator doesn't enter the state.
             StartCoroutine(WaitForFallThenComplete());
         }
         else
@@ -355,20 +410,78 @@ public class BlockingObstacle : MonoBehaviour
         }
     }
 
+    private IEnumerator PlayHalfSuccessItemUseFeedback()
+    {
+        if (animator != null)
+        {
+            if (!animator.enabled) animator.enabled = true;
+
+            // Some animator graphs only allow Hide from Pull, so fire Pull first.
+            if (!string.IsNullOrEmpty(triggerPull))
+            {
+                animator.ResetTrigger(triggerHide);
+                animator.SetTrigger(triggerPull);
+            }
+
+            // Give the animator one small step to enter the pull state before hiding again.
+            yield return null;
+            yield return new WaitForSeconds(0.05f);
+
+            if (animator != null && !string.IsNullOrEmpty(triggerHide))
+                animator.SetTrigger(triggerHide);
+        }
+
+        if (hideAnimationSFX != null && AudioManager.Instance != null)
+            AudioManager.Instance.PlaySFX(hideAnimationSFX);
+
+        pendingHalfSuccessRoutine = null;
+    }
+
     private IEnumerator WaitForFallThenComplete()
     {
-        // Wait one frame for the Animator to transition into the Fall state
+        // Allow a short frame for Animator to transition
         yield return null;
+        yield return new WaitForSeconds(0.05f);
 
-        // Now wait for that clip to finish
+        // Try to determine a reasonable clip length to wait for.
         AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
-        yield return new WaitForSeconds(state.length);
+        float clipLength = state.length;
 
-        // Animation done — hide the sprite and spawn debris/items
+        // If state length is unavailable or zero, try to find a matching clip
+        if (clipLength <= 0f && animator.runtimeAnimatorController != null)
+        {
+            var clips = animator.runtimeAnimatorController.animationClips;
+            foreach (var clip in clips)
+            {
+                if (string.Equals(clip.name, triggerFall, StringComparison.OrdinalIgnoreCase) ||
+                    clip.name.IndexOf(triggerFall, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    clipLength = clip.length;
+                    break;
+                }
+            }
+        }
+
+        // Final fallback
+        if (clipLength <= 0f) clipLength = 0.5f;
+
+        // Wait for the clip length
+        yield return new WaitForSeconds(clipLength);
+
+        // Animation done — keep sprite visible for postFallDelay (if set), then hide and spawn debris/items
+        if (postFallDelay > 0f)
+        {
+            Debug.Log($"[BlockingObstacle] Waiting post-fall delay of {postFallDelay}s before hiding sprite.");
+            yield return new WaitForSeconds(postFallDelay);
+        }
+
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.enabled = false;
 
         StartCoroutine(SpawnDebrisSequence());
+
+        // SAFETY: disable the animator after the fall animation has completed
+        if (animator != null) animator.enabled = false;
     }
 
     private IEnumerator SpawnDebrisSequence()

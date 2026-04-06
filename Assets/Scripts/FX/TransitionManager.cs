@@ -41,8 +41,19 @@ public class TransitionManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance != null && Instance != this)
+        {
+            // TransitionManager references scene objects (curtain/canvas), so prefer the newest scene instance.
+            TransitionManager oldInstance = Instance;
+            Debug.Log($"[TransitionManager] Replacing previous instance from scene '{oldInstance.gameObject.scene.name}' with current scene '{gameObject.scene.name}'.");
+            Instance = this;
+            if (oldInstance != null)
+                Destroy(oldInstance);
+        }
+        else
+        {
+            Instance = this;
+        }
 
         // Auto-find curtain if not assigned
         if (curtain == null)
@@ -103,22 +114,38 @@ public class TransitionManager : MonoBehaviour
     /// onMiddle: callback runs while screen is black (update section state and move player).
     /// onEnd: callback runs after screen fades back in.
     /// </summary>
-    public IEnumerator PlayWalkTransition(Transform player, Vector2 movementDir, System.Action onMiddle, System.Action onEnd = null, Vector2 sourceExitWalkTarget = default, Vector2 destinationExitWalkTarget = default)
+    public IEnumerator PlayWalkTransition(Transform player, Vector2 movementDir, System.Action onMiddle, System.Action onEnd = null, Vector2 sourceExitWalkTarget = default, Vector2 destinationExitWalkTarget = default, bool startFromBlack = false)
     {
         if (isTransitioning) yield break;
         isTransitioning = true;
 
-        Debug.Log("[TransitionManager] PlayWalkTransition started.");
+        Debug.Log($"[TransitionManager] PlayWalkTransition started. startFromBlack={startFromBlack}");
 
         // 0. Hide UI
         if (uiCanvasGroup != null)
         {
-            yield return StartCoroutine(FadeUI(0f));
+            if (startFromBlack)
+            {
+                uiCanvasGroup.alpha = 0f;
+                uiCanvasGroup.interactable = false;
+                uiCanvasGroup.blocksRaycasts = false;
+            }
+            else
+            {
+                yield return StartCoroutine(FadeUI(0f));
+            }
         }
 
         // 1. Fade to Black
-        if (transitionSFX != null) AudioManager.Instance?.PlaySFX(transitionSFX);
-        yield return StartCoroutine(FadeCurtain(1f));
+        if (startFromBlack)
+        {
+            SetCurtainAlphaImmediate(1f);
+        }
+        else
+        {
+            if (transitionSFX != null) AudioManager.Instance?.PlaySFX(transitionSFX);
+            yield return StartCoroutine(FadeCurtain(1f));
+        }
 
         // 2. Middle Action (usually Snap Camera/Update Section State and move player)
         onMiddle?.Invoke();
@@ -127,13 +154,39 @@ public class TransitionManager : MonoBehaviour
         Debug.Log($"[TransitionManager] Screen is black for {blackScreenDuration}s. Camera panning and loading sections...");
         yield return new WaitForSeconds(blackScreenDuration);
 
-        // 4. Fade Back from Black
-        yield return StartCoroutine(FadeCurtain(0f));
-
-        // 5. Show UI again
-        if (uiCanvasGroup != null)
+        bool waitingForVideo = VideoCutsceneManager.Instance != null && VideoCutsceneManager.Instance.IsPlaying;
+        if (waitingForVideo)
         {
-            yield return StartCoroutine(FadeUI(1f));
+            const float maxExtraBlackWait = 2.0f;
+            float extraWait = 0f;
+            while (extraWait < maxExtraBlackWait &&
+                   VideoCutsceneManager.Instance != null &&
+                   VideoCutsceneManager.Instance.IsPlaying &&
+                   !VideoCutsceneManager.Instance.HasPresentedFirstFrame)
+            {
+                extraWait += Time.deltaTime;
+                yield return null;
+            }
+
+            if (uiCanvasGroup != null)
+            {
+                // Make video UI visible while still black to avoid revealing gameplay for a frame.
+                yield return StartCoroutine(FadeUI(1f));
+            }
+
+            // Fade the black curtain after video UI is ready.
+            yield return StartCoroutine(FadeCurtain(0f));
+        }
+        else
+        {
+            // 4. Fade Back from Black
+            yield return StartCoroutine(FadeCurtain(0f));
+
+            // 5. Show UI again
+            if (uiCanvasGroup != null)
+            {
+                yield return StartCoroutine(FadeUI(1f));
+            }
         }
 
         // Fire the end callback (after screen is fully revealed)
@@ -146,6 +199,14 @@ public class TransitionManager : MonoBehaviour
     {
         if (uiCanvasGroup == null) yield break;
 
+        bool showUI = targetAlpha > 0.5f;
+        if (showUI)
+        {
+            // Re-enable button interaction before fade-in completes.
+            uiCanvasGroup.interactable = true;
+            uiCanvasGroup.blocksRaycasts = true;
+        }
+
         float startAlpha = uiCanvasGroup.alpha;
         float elapsed = 0f;
 
@@ -157,6 +218,13 @@ public class TransitionManager : MonoBehaviour
         }
 
         uiCanvasGroup.alpha = targetAlpha;
+
+        if (!showUI)
+        {
+            // Disable interaction once UI is hidden.
+            uiCanvasGroup.interactable = false;
+            uiCanvasGroup.blocksRaycasts = false;
+        }
     }
 
     private IEnumerator FadeCurtain(float targetAlpha)
@@ -186,5 +254,18 @@ public class TransitionManager : MonoBehaviour
         curtain.color = finalC;
 
         Debug.Log($"[TransitionManager] Curtain fade complete (alpha now = {finalC.a}).");
+    }
+
+    private void SetCurtainAlphaImmediate(float alpha)
+    {
+        if (curtain == null)
+        {
+            Debug.LogError("[TransitionManager] Cannot set curtain alpha immediately: SpriteRenderer is null!");
+            return;
+        }
+
+        Color c = curtain.color;
+        c.a = Mathf.Clamp01(alpha);
+        curtain.color = c;
     }
 }

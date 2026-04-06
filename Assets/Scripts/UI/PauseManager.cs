@@ -40,10 +40,17 @@ public class PauseManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            // PauseManager holds scene-local UI references, so the newest scene instance should win.
+            PauseManager oldInstance = Instance;
+            Debug.Log($"[PauseManager] Replacing previous instance from scene '{oldInstance.gameObject.scene.name}' with current scene '{gameObject.scene.name}'.");
+            Instance = this;
+            if (oldInstance != null)
+                Destroy(oldInstance);
         }
-        Instance = this;
+        else
+        {
+            Instance = this;
+        }
 
         // Ensure the panel starts closed
         if (settingsPanel != null)

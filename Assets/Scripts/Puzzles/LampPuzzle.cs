@@ -61,6 +61,10 @@ public class LampPuzzle : MonoBehaviour
 
     [Header("Events")]
     public UnityEvent OnLampTurnedOn;
+    
+    [Header("Bonus Puzzle")]
+    [Tooltip("Optional MolePuzzle to spawn after the room lights up.")]
+    public MolePuzzle molePuzzle;
 
     private int currentStage = 0; // 0: Start, 1: Halfway, 2: Finished
     private bool isLit = false;
@@ -319,6 +323,9 @@ public class LampPuzzle : MonoBehaviour
             yield return FinalFadeRoutine();
         }
 
+        // Activate mole puzzle after room-light completion, even if fade visuals are not configured.
+        TryActivateMolePuzzle();
+
         // 4. Finally, settle into the looping idling state
         if (animator != null && !string.IsNullOrEmpty(triggerLitIdling))
         {
@@ -365,6 +372,33 @@ public class LampPuzzle : MonoBehaviour
             
             // Mark this section as having custom music so autoPlayMusic doesn't interfere
             GameManager.MarkSectionWithCustomMusic(currSectionIndex);
+        }
+        
+    }
+
+    private void TryActivateMolePuzzle()
+    {
+        MolePuzzle target = molePuzzle;
+
+        if (target == null)
+        {
+            // Fallback: find one in scene (including inactive) in case inspector reference was missed.
+            target = FindObjectOfType<MolePuzzle>(true);
+            if (target != null)
+            {
+                molePuzzle = target;
+                Debug.Log("[LampPuzzle] Auto-linked MolePuzzle from scene.");
+            }
+        }
+
+        if (target != null)
+        {
+            Debug.Log("[LampPuzzle] Activating mole puzzle...");
+            target.ActivateMole();
+        }
+        else
+        {
+            Debug.LogWarning("[LampPuzzle] MolePuzzle was not found. Assign 'molePuzzle' in inspector or place one in scene.");
         }
     }
     #endregion

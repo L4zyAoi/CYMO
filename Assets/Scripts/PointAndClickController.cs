@@ -1,5 +1,22 @@
 using System;
+using System.Collections;
 using UnityEngine;
+
+[System.Serializable]
+public class ScalingZone
+{
+    [Tooltip("Where the character enters this perspective lane (outer edge).")]
+    public Transform entryPoint;
+
+    [Tooltip("Deep point of the lane where character reaches smallest size.")]
+    public Transform vanishingPoint;
+
+    [Tooltip("Smallest size when near the vanishing point.")]
+    public float minScale = 0.25f;
+
+    [Tooltip("Largest size when near the entry point.")]
+    public float maxScale = 1.0f;
+}
 
 /// <summary>
 /// Point-and-click 2D character controller.
@@ -49,18 +66,35 @@ public class PointAndClickController : MonoBehaviour
     [Tooltip("Boolean parameter name in the Animator to trigger walking.")]
     public string isWalkingParam = "isWalking";
 
+    [Header("Celebration")]
+    [Tooltip("Trigger parameter name to play a celebration animation (optional).")]
+    public string celebrationTrigger = "celebrate";
+    [Tooltip("Direct animator state name to crossfade to when no trigger is present (optional).")]
+    public string celebrationState = "celebrate";
+    [Tooltip("If true, will use direct state crossfade when the trigger parameter is missing.")]
+    public bool celebrationUseDirectStateFallback = true;
+    [Tooltip("Cross-fade duration used when applying the direct state fallback.")]
+    public float celebrationDirectStateCrossFade = 0.03f;
+    [Tooltip("If > 0, automatically end the celebration after this many seconds and restore idle/walk state.")]
+    public float celebrationDuration = 1.5f;
+    [Tooltip("Optional sound effect to play when celebration starts.")]
+    public AudioClip celebrationSFX;
+    [Tooltip("Volume scale for the celebration SFX (0-1).")]
+    [Range(0f, 1f)] public float celebrationSFXVolume = 1.0f;
+
     [Header("Audio")]
     public AudioClip clickSFX;
     public AudioClip walkSFX;
     [Tooltip("Time in seconds between each footstep sound.")]
     public float stepInterval = 0.45f;
 
+    [Header("Perspective Scaling Zones")]
+    [Tooltip("Optional per-exit/per-lane scaling setup. If assigned, these are used instead of anchor-based scaling.")]
+    public ScalingZone[] scalingZones;
+
     private Rigidbody2D rb;
     private Camera mainCam;
     private Vector2 targetPos;
-    private PerspectiveAnchor[] cachedAnchors;
-    private float anchorCacheTime = 0f;
-    private const float ANCHOR_CACHE_DURATION = 5f; // Cache for 5 seconds (increased from 2 for better perf)
     
     private bool _isMoving;
     private bool isMoving
@@ -79,6 +113,7 @@ public class PointAndClickController : MonoBehaviour
     private GameObject currentIndicator;
     private BlockingObstacle activeObstacle; // obstacle currently being held
     private LampPuzzle activeLamp;            // lamp currently being held
+    private DraggablePickup activeDraggable;  // world pickup currently being dragged
     private Action onArrivedCallback;        // fires once when character reaches targetPos
 
     private System.Collections.Generic.List<Vector2> currentPath;
@@ -86,16 +121,26 @@ public class PointAndClickController : MonoBehaviour
 
     private float stepTimer = 0f;
     private bool warnedNoCam = false;
+    private float defaultFacingSign = 1f;
     private Collider2D cachedHoverCollider = null;
     private float lastHoverCheckTime = 0f;
     private const float HOVER_CHECK_INTERVAL = 0.1f; // Check hover every 100ms instead of every frame
-    #endregion
 
-    #region Unity callbacks 
-    void Awake()
+    [Header("Debug (Perspective scaling)")]
+    public bool debugPerspectiveScaling = false;
+    public bool debugPerspectiveScalingOnlyWhenMoving = true;
+    public float debugPerspectiveLogInterval = 0.25f;
+
+    private float _debugPerspectiveNextLogTime = 0f;
+	#endregion
+
+	#region Unity callbacks 
+	void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         mainCam = Camera.main;
+
+        defaultFacingSign = transform.localScale.x < 0f ? -1f : 1f;
 
         // Freeze rotation so the character doesn't spin 
         // from physics collisions
@@ -128,7 +173,6 @@ public class PointAndClickController : MonoBehaviour
     private void OnSectionEntered(int sectionIndex)
     {
         // Immediately reset size when entering a new section
-        InvalidateAnchorCache();
         UpdatePerspectiveScale();
     }
 
@@ -187,6 +231,17 @@ public class PointAndClickController : MonoBehaviour
     #region Input
     private void HandleInput()
     {
+        // Update world-drag if active: follow cursor while held
+        if (activeDraggable != null)
+        {
+            if (Input.GetMouseButton(0))
+            {
+                activeDraggable.UpdateDrag(Input.mousePosition);
+                return; // consume input while dragging
+            }
+            // if mouse button was released, allow the normal MouseButtonUp block below to run
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 screenPoint = Input.mousePosition;
@@ -200,6 +255,14 @@ public class PointAndClickController : MonoBehaviour
                 if (clickSFX != null) AudioManager.Instance?.PlaySFX(clickSFX);
 
                 PickupItem pickup = hit.GetComponent<PickupItem>();
+                DraggablePickup draggable = hit.GetComponent<DraggablePickup>();
+                if (draggable != null && draggable.allowDirectDrag)
+                {
+                    activeDraggable = draggable;
+                    activeDraggable.BeginDrag();
+                    return;
+                }
+
                 if (pickup != null) { pickup.TryPickup(); return; }
 
                 FragmentPickup fragment = hit.GetComponent<FragmentPickup>();
@@ -231,6 +294,11 @@ public class PointAndClickController : MonoBehaviour
             {
                 activeLamp.CancelHold();
                 activeLamp = null;
+            }
+            if (activeDraggable != null)
+            {
+                activeDraggable.EndDrag();
+                activeDraggable = null;
             }
         }
     }
@@ -304,6 +372,9 @@ public class PointAndClickController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         targetPos = rb.position;
         DestroyClickIndicator();
+
+        // Restore default facing when fully stopped
+        UpdatePerspectiveScale(defaultFacingSign);
     }
 
     /// <summary>
@@ -327,12 +398,9 @@ public class PointAndClickController : MonoBehaviour
         float currentScale = 1.0f;
         if (currentSection != null && currentSection.usePerspectiveScaling)
         {
-            // Try to get anchors from cache or discover them
-            PerspectiveAnchor[] anchors = GetPerspectiveAnchors();
-            
-            if (anchors != null && anchors.Length > 0)
+            if (scalingZones != null && scalingZones.Length > 0)
             {
-                currentScale = CalculateScaleFromAnchors(rb.position, anchors);
+                currentScale = CalculateScaleFromScalingZones(rb.position, scalingZones);
             }
             else
             {
@@ -345,93 +413,41 @@ public class PointAndClickController : MonoBehaviour
     }
 
     /// <summary>
-    /// Get all PerspectiveAnchor components in the scene with caching.
+    /// Calculate scale from configured scaling lanes.
+    /// The lane whose segment is closest to the character drives the scale.
     /// </summary>
-    private PerspectiveAnchor[] GetPerspectiveAnchors()
+    private float CalculateScaleFromScalingZones(Vector2 characterPos, ScalingZone[] zones)
     {
-        // Return cached anchors if still valid
-        if (cachedAnchors != null && anchorCacheTime < ANCHOR_CACHE_DURATION)
+        if (zones == null || zones.Length == 0) return 1.0f;
+
+        bool foundZone = false;
+        float bestDistanceSqr = float.MaxValue;
+        float bestScale = 1.0f;
+
+        foreach (ScalingZone zone in zones)
         {
-            anchorCacheTime += Time.deltaTime;
-            return cachedAnchors;
-        }
+            if (zone == null || zone.entryPoint == null || zone.vanishingPoint == null) continue;
 
-        // Only rediscover anchors after cache expires
-        // Use more efficient caching by checking if cache is populated
-        if (cachedAnchors == null)
-        {
-            cachedAnchors = FindObjectsOfType<PerspectiveAnchor>(includeInactive: false);
-        }
-        
-        anchorCacheTime = 0f;
-        return cachedAnchors;
-    }
+            Vector2 entry = zone.entryPoint.position;
+            Vector2 vanish = zone.vanishingPoint.position;
+            Vector2 lane = vanish - entry;
 
-    /// <summary>
-    /// Reset the anchor cache when entering a new section.
-    /// </summary>
-    private void InvalidateAnchorCache()
-    {
-        cachedAnchors = null;
-        anchorCacheTime = ANCHOR_CACHE_DURATION;
-    }
+            if (lane.sqrMagnitude < 0.000001f) continue;
 
-    /// <summary>
-    /// Calculate character scale based on proximity to perspective anchors.
-    /// Uses weighted interpolation between nearby anchors.
-    /// Optimized to early-exit from distant anchors.
-    /// </summary>
-    private float CalculateScaleFromAnchors(Vector2 characterPos, PerspectiveAnchor[] anchors)
-    {
-        if (anchors == null || anchors.Length == 0) return 1.0f;
+            // Project character onto lane from entry -> vanishing point.
+            float t = Mathf.Clamp01(Vector2.Dot(characterPos - entry, lane) / lane.sqrMagnitude);
+            Vector2 closest = entry + lane * t;
+            float distanceSqr = (characterPos - closest).sqrMagnitude;
 
-        float totalWeight = 0f;
-        float weightedScale = 0f;
-        bool foundInfluence = false;
-
-        // Calculate weights for all anchors within influence range
-        foreach (var anchor in anchors)
-        {
-            if (anchor == null || !anchor.gameObject.activeInHierarchy) continue;
-
-            float distance = anchor.GetDistance(characterPos);
-            
-            // Early exit for distant anchors - skip expensive weight calculation
-            if (distance > anchor.influenceRadius)
+            if (distanceSqr < bestDistanceSqr)
             {
-                continue;
+                bestDistanceSqr = distanceSqr;
+                bestScale = Mathf.Lerp(zone.maxScale, zone.minScale, t);
+                foundZone = true;
             }
-
-            foundInfluence = true;
-
-            // Use inverse distance squared for smooth falloff, with small epsilon to prevent division issues
-            float weight = 1f / (1f + distance * distance);
-            totalWeight += weight;
-            weightedScale += weight * anchor.scale;
         }
 
-        // If no anchors are in range, use the closest anchor's scale
-        if (!foundInfluence)
-        {
-            float closestDistance = float.MaxValue;
-            float closestScale = 1.0f;
-
-            foreach (var anchor in anchors)
-            {
-                if (anchor == null || !anchor.gameObject.activeInHierarchy) continue;
-
-                float distance = anchor.GetDistance(characterPos);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestScale = anchor.scale;
-                }
-            }
-
-            return closestScale;
-        }
-
-        return totalWeight > 0 ? weightedScale / totalWeight : 1.0f;
+        return foundZone ? bestScale : 1.0f;
     }
 
     /// <summary>
@@ -443,16 +459,47 @@ public class PointAndClickController : MonoBehaviour
         float rangeTopY = section.topY;
         float rangeBottomY = section.bottomY;
         
-        if (isMoving && currentPath != null && currentPath.Count > 0)
+        //if (isMoving && currentPath != null && currentPath.Count > 0)
+        //{
+        //    // Expand the range to encompass both current and target positions
+        //    rangeTopY = Mathf.Min(section.topY, targetPos.y);
+        //    rangeBottomY = Mathf.Max(section.bottomY, targetPos.y);
+        //}
+
+        const float EPS = 0.0001f;
+        if (Mathf.Abs(rangeBottomY - rangeTopY) < EPS)
         {
-            // Expand the range to encompass both current and target positions
-            rangeTopY = Mathf.Min(section.topY, targetPos.y);
-            rangeBottomY = Mathf.Max(section.bottomY, targetPos.y);
+            // Fallback: don't allow a degenerate range (prevent snapping to minScale)
+            return transform.localScale.y;
+            //return 1.0f;
         }
-        
-        float t = Mathf.InverseLerp(rangeTopY, rangeBottomY, characterPos.y);
-        return Mathf.Lerp(section.minScale, section.maxScale, t);
-    }
+
+		float t = Mathf.InverseLerp(rangeTopY, rangeBottomY, characterPos.y);
+		float scale = Mathf.Lerp(section.minScale, section.maxScale, t);
+
+		if (debugPerspectiveScaling)
+		{
+			if (!debugPerspectiveScalingOnlyWhenMoving || isMoving)
+			{
+				if (Time.time >= _debugPerspectiveNextLogTime)
+				{
+					_debugPerspectiveNextLogTime = Time.time + Mathf.Max(0.05f, debugPerspectiveLogInterval);
+
+					Debug.Log(
+						$"[PerspectiveFallback] section='{section.sectionName}' " +
+						$"posY={characterPos.y:F3} targetY={targetPos.y:F3} isMoving={isMoving} " +
+						$"topY={section.topY:F3} bottomY={section.bottomY:F3} " +
+						$"rangeTopY={rangeTopY:F3} rangeBottomY={rangeBottomY:F3} " +
+						$"minScale={section.minScale:F3} maxScale={section.maxScale:F3} " +
+						$"t={t:F3} scale={scale:F3}",
+						this
+					);
+				}
+			}
+		}
+
+		return scale;
+	}
 
     private void MoveCharacter()
     {
@@ -470,6 +517,9 @@ public class PointAndClickController : MonoBehaviour
                 rb.linearVelocity = Vector2.zero;
                 isMoving = false;
                 DestroyClickIndicator();
+
+                // Restore default facing when fully stopped
+                UpdatePerspectiveScale(defaultFacingSign);
 
                 // Fire arrival callback (e.g. SectionExit transition)
                 Action cb = onArrivedCallback;
@@ -502,6 +552,90 @@ public class PointAndClickController : MonoBehaviour
         nextPos = WalkableArea.ClampToNearest(walkableAreas, nextPos);
 
         rb.MovePosition(nextPos);
+    }
+    #endregion
+
+    #region Celebration / Emotes
+    private bool HasTriggerParameter(Animator targetAnimator, string triggerName)
+    {
+        if (targetAnimator == null || string.IsNullOrEmpty(triggerName))
+            return false;
+
+        AnimatorControllerParameter[] parameters = targetAnimator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter p = parameters[i];
+            if (p.type == AnimatorControllerParameterType.Trigger && p.name == triggerName)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Public API to play a celebration/emote animation on this character.
+    /// If an animator trigger name is assigned it will be used; otherwise a direct state cross-fade
+    /// will be attempted when `celebrationUseDirectStateFallback` is enabled.
+    /// </summary>
+    public void PlayCelebration(float overrideDuration = -1f)
+    {
+        if (animator == null)
+        {
+            Debug.LogWarning("[PointAndClickController] PlayCelebration called but Animator is null.");
+            return;
+        }
+
+        // Stop movement so the celebration animation isn't interrupted
+        isMoving = false;
+
+        // Ensure walking parameter is cleared
+        if (!string.IsNullOrEmpty(isWalkingParam))
+            animator.SetBool(isWalkingParam, false);
+
+        // Try trigger first
+        if (!string.IsNullOrEmpty(celebrationTrigger) && HasTriggerParameter(animator, celebrationTrigger))
+        {
+            animator.SetTrigger(celebrationTrigger);
+        }
+        else if (celebrationUseDirectStateFallback && !string.IsNullOrEmpty(celebrationState) && animator.isActiveAndEnabled)
+        {
+            try
+            {
+                animator.CrossFadeInFixedTime(celebrationState, Mathf.Max(0f, celebrationDirectStateCrossFade));
+            }
+            catch (Exception)
+            {
+                Debug.LogWarning("[PointAndClickController] CrossFade to celebration state failed (state may not exist).");
+            }
+        }
+        else
+        {
+            // No celebration trigger/state configured - nothing to do
+        }
+
+        // Play celebration SFX (via global AudioManager so it continues even if this GameObject
+        // gets disabled during a cutscene).
+        if (celebrationSFX != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(celebrationSFX, celebrationSFXVolume);
+        }
+
+        // Optionally end celebration after a duration
+        float dur = (overrideDuration > 0f) ? overrideDuration : celebrationDuration;
+        if (dur > 0f)
+        {
+            StartCoroutine(EndCelebrationAfter(dur));
+        }
+    }
+
+    private IEnumerator EndCelebrationAfter(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Clear any transient flags. We don't force a specific idle state since Animator graph
+        // should handle transitions based on parameters; we only restore walking flag to false.
+        if (animator != null && !string.IsNullOrEmpty(isWalkingParam))
+            animator.SetBool(isWalkingParam, false);
     }
     #endregion
 

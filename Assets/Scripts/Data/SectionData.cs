@@ -64,6 +64,16 @@ public class SectionData
     [Tooltip("If true, each cutscene will only play once. Subsequent section entries won't trigger it.")]
     public bool cutscenePlayOnce = true;
 
+    [Header("On Enter Video")]
+    [Tooltip("Optional: video clip to play when entering this section. Leave empty for no video.")]
+    public UnityEngine.Video.VideoClip onEnterVideoClip;
+    [Tooltip("If true, the section video will only play once and then be skipped on subsequent section entries.")]
+    public bool onEnterVideoPlayOnce = true;
+    [Tooltip("If true, after the on-enter video finishes the player will transition back to the previous section.")]
+    public bool onEnterVideoReturnToPreviousSection = false;
+    [Tooltip("Optional: if set to >= 0, the player will be moved to this section index after the on-enter video finishes. Overrides return-to-previous when set.")]
+    public int onEnterVideoReturnSectionIndex = -1;
+
     [Tooltip("Optional explicit exit mappings for this section. " +
              "Use this to map an exit id (from SectionExit) to a destination section index.")]
     public ExitLink[] exits = new ExitLink[0];

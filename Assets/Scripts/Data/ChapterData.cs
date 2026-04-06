@@ -16,6 +16,20 @@ public class ChapterData : ScriptableObject
 
     [Tooltip("Index of the map the player enters when starting this chapter.")]
     public int defaultMapIndex = 0;
+    
+    [Header("Opening Cutscene")]
+    [Tooltip("Optional: name of a cutscene (from CutsceneManager) to play when this chapter starts.")]
+    public string openingCutsceneName = "";
+
+    [Tooltip("If true, the opening cutscene will only play once and then be skipped on subsequent starts.")]
+    public bool openingCutscenePlayOnce = true;
+
+    [Header("Opening Video")]
+    [Tooltip("Optional: video clip to play when this chapter starts.")]
+    public UnityEngine.Video.VideoClip openingVideoClip;
+
+    [Tooltip("If true, the opening video will only play once and then be skipped on subsequent starts.")]
+    public bool openingVideoPlayOnce = true;
 
     [Tooltip("All quest items (badges) that are relevant to this chapter. These will be displayed as slots in the Progress Panel.")]
     public ItemData[] chapterBadges = new ItemData[0];

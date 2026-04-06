@@ -19,11 +19,15 @@ public class InventoryManager : MonoBehaviour
     public const int SlotCnt = 4;
     private ItemData[] slots = new ItemData[SlotCnt];
 
+    // Separate collection for non-functional "badge" items
+    private System.Collections.Generic.List<ItemData> questItems = new System.Collections.Generic.List<ItemData>();
+
     /// <summary>
     /// Fired whenever a slot changes (add or remove). 
     /// UI subscribes here.
     /// </summary>
     public event Action OnInvenChanged;
+    public event Action OnQuestInvenChanged;
 
     #region Unity callback(s)
     void Awake()
@@ -52,6 +56,25 @@ public class InventoryManager : MonoBehaviour
         }
         return false; // inventory full
     }
+
+    /// <summary>
+    /// Adds a non-functional quest item (badge) to the separate progress list.
+    /// Does not take up one of the 4 slots.
+    /// </summary>
+    public void AddQuestItem(ItemData item)
+    {
+        if (item == null) return;
+        if (questItems.Contains(item)) return;
+
+        questItems.Add(item);
+        OnQuestInvenChanged?.Invoke();
+        Debug.Log($"[InventoryManager] Quest item collected: {item.itemName}");
+    }
+
+    /// <summary>
+    /// Returns a read-only list of all collected quest items.
+    /// </summary>
+    public System.Collections.Generic.IEnumerable<ItemData> GetQuestItems() => questItems;
 
     /// <summary>
     /// Removes the first occurrence of the given item from the inventory.
@@ -90,8 +113,14 @@ public class InventoryManager : MonoBehaviour
     /// </summary>
     public bool Contains(ItemData item)
     {
+        // 1. Check standard 4-slot inventory
         foreach (var s in slots)
             if (s == item) return true;
+
+        // 2. Check quest/badge list
+        if (questItems != null && questItems.Contains(item))
+            return true;
+
         return false;
     }
     #endregion

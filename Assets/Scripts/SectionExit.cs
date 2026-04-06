@@ -1,6 +1,5 @@
 using UnityEngine;
 
-using UnityEngine;
 using UnityEngine.Serialization;
 
 /// <summary>
@@ -88,7 +87,7 @@ public class SectionExit : MonoBehaviour
         switch (exitType)
         {
             case ExitType.SameMap:
-                GameManager.Instance.GoToSectionFromExitOrSection(exitId);
+                GameManager.Instance.GoToSectionFromExitOrSection(exitId, walkTarget);
                 break;
 
             case ExitType.NewMap:
@@ -98,7 +97,7 @@ public class SectionExit : MonoBehaviour
                     triggered = false;
                     return;
                 }
-                GameManager.Instance.GoToMap(targetMap, targetMapSectionIndex, targetChapter);
+                GameManager.Instance.GoToMap(targetMap, targetMapSectionIndex, targetChapter, walkTarget);
                 break;
         }
 

@@ -21,6 +21,9 @@ public class SectionData
         [Tooltip("Destination section index in this map.")]
         public int targetSectionIndex;
 
+        [Tooltip("Optional: exit id in the destination section to walk from. If set, character walks from that exit's position to spawn point.")]
+        public int destinationExitId;
+
         [Tooltip("If enabled, this exit uses a custom spawn point instead of the destination section's default spawnPoint.")]
         public bool useOverrideSpawnPoint;
 
@@ -37,6 +40,39 @@ public class SectionData
     [Tooltip("The camera is confined to this rectangle while the player is in this section. " +
              "Use the Scene view to align it with your background art.")]
     public Rect cameraBounds = new Rect(-8f, -4.5f, 16f, 9f); // default: 16:9 at origin
+
+    [Header("BGM")]
+    [Tooltip("If true, the section's background music starts automatically on entry. If false, it must be triggered manually.")]
+    public bool autoPlayMusic = true;
+    [Tooltip("Background music for this section. Leave empty to keep current music.")]
+    public AudioClip backgroundMusic;
+
+    [Header("Perspective Scaling")]
+    [Tooltip("If true, the character scales based on proximity to perspective anchors in this section. " +
+             "Anchors are auto-discovered from all PerspectiveAnchor components in the scene.")]
+    public bool usePerspectiveScaling = false;
+    [Tooltip("Fallback top Y for linear scaling if no anchors are found.")]
+    public float topY = 1.0f;
+    [Tooltip("Fallback bottom Y for linear scaling if no anchors are found.")]
+    public float bottomY = -1.0f;
+    [Range(0.1f, 2.0f)] public float minScale = 0.6f;
+    [Range(0.1f, 2.0f)] public float maxScale = 1.0f;
+
+    [Header("Cutscenes")]
+    [Tooltip("Optional: names of cutscenes to play (in order) when entering this section. Leave empty for no cutscene.")]
+    public string[] onEnterCutsceneNames = new string[0];
+    [Tooltip("If true, each cutscene will only play once. Subsequent section entries won't trigger it.")]
+    public bool cutscenePlayOnce = true;
+
+    [Header("On Enter Video")]
+    [Tooltip("Optional: video clip to play when entering this section. Leave empty for no video.")]
+    public UnityEngine.Video.VideoClip onEnterVideoClip;
+    [Tooltip("If true, the section video will only play once and then be skipped on subsequent section entries.")]
+    public bool onEnterVideoPlayOnce = true;
+    [Tooltip("If true, after the on-enter video finishes the player will transition back to the previous section.")]
+    public bool onEnterVideoReturnToPreviousSection = false;
+    [Tooltip("Optional: if set to >= 0, the player will be moved to this section index after the on-enter video finishes. Overrides return-to-previous when set.")]
+    public int onEnterVideoReturnSectionIndex = -1;
 
     [Tooltip("Optional explicit exit mappings for this section. " +
              "Use this to map an exit id (from SectionExit) to a destination section index.")]

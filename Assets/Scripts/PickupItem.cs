@@ -23,6 +23,9 @@ public class PickupItem : MonoBehaviour
     [Tooltip("Optional: shown when the cursor hovers over this item.")]
     public GameObject hoverHighlight;
 
+    [Tooltip("Sound played when this item is picked up.")]
+    public AudioClip pickupSFX;
+
     // Hover highlight
     public void SetHighlight(bool on)
     {
@@ -49,8 +52,17 @@ public class PickupItem : MonoBehaviour
             return false;
         }
 
+        if (item.isQuestItem)
+        {
+            if (pickupSFX != null) AudioManager.Instance?.PlaySFX(pickupSFX);
+            InventoryManager.Instance.AddQuestItem(item);
+            gameObject.SetActive(false);
+            return true;
+        }
+
         if (InventoryManager.Instance.TryAddItem(item))
         {
+            if (pickupSFX != null) AudioManager.Instance?.PlaySFX(pickupSFX);
             gameObject.SetActive(false); // hide from world
             return true;
         }

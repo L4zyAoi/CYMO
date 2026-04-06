@@ -43,6 +43,8 @@ public class CameraController : MonoBehaviour
 	// backgroundBounds is set when FitToBackground is called
 	private Rect backgroundBounds;
 	private bool hasBackgroundBounds = false;
+	private Rect cachedActiveBounds;
+	private bool activeBoundsDirty = true; // Invalidate cache when bounds change
 
 	private Camera cam;
 	private Coroutine panCoroutine;
@@ -76,14 +78,27 @@ public class CameraController : MonoBehaviour
 			return;
 		}
 
-		// Set the section bounds used for clamping
-		sectionBounds = section.cameraBounds;
+		// Prefer explicit section camera bounds when present. If the section's
+		// cameraBounds are empty, fall back to any previously fitted background bounds.
+		Rect newSectionBounds = section.cameraBounds;
+		if (newSectionBounds.width > 0f && newSectionBounds.height > 0f)
+		{
+			sectionBounds = newSectionBounds;
+		}
+		else if (hasBackgroundBounds)
+		{
+			sectionBounds = backgroundBounds; // use background-derived bounds when section is empty
+		}
+		else
+		{
+			sectionBounds = newSectionBounds;
+		}
+
+		activeBoundsDirty = true; // Invalidate cache when bounds change
 
 		Debug.Log($"[CameraController] MoveToSection -> received cameraBounds={sectionBounds}, cam.orthographicSize={cam.orthographicSize}");
 
-		Vector3 targetPos = ClampedCameraPos(new Vector2(
-			sectionBounds.center.x,
-			sectionBounds.center.y));
+		Vector3 targetPos = ClampedCameraPos(new Vector2(sectionBounds.center.x, sectionBounds.center.y));
 
 		Debug.Log($"[CameraController] MoveToSection -> computed targetPos={targetPos} from sectionCenter={sectionBounds.center}");
 
@@ -143,6 +158,7 @@ public class CameraController : MonoBehaviour
 			bgWorldSize.y
 		);
 		hasBackgroundBounds = true;
+		activeBoundsDirty = true; // Invalidate cache when bounds change
 
 		if (overrideBounds)
 		{
@@ -159,27 +175,53 @@ public class CameraController : MonoBehaviour
 			transform.position = new Vector3(clamped.x, clamped.y, transform.position.z);
 		}
 	}
+
+	/// <summary>
+	/// Clear any previously fitted background bounds so the camera no longer uses the background as an active clamp.
+	/// </summary>
+	public void ClearFittedBackground()
+	{
+		hasBackgroundBounds = false;
+		backgroundBounds = new Rect();
+		activeBoundsDirty = true;
+	}
+
 	#endregion
 
 	#region Helpers
 	private Rect GetActiveBounds()
 	{
+		// Return cached result if not dirty
+		if (!activeBoundsDirty)
+		{
+			return cachedActiveBounds;
+		}
+
 		// Choose which rect to use according to clampMode and availability
 		switch (clampMode)
 		{
 			case ClampMode.BackgroundOnly:
-				if (hasBackgroundBounds) return backgroundBounds;
-				return sectionBounds;
+				if (hasBackgroundBounds)
+					cachedActiveBounds = backgroundBounds;
+				else
+					cachedActiveBounds = sectionBounds;
+				break;
 
 			case ClampMode.Union:
 				if (hasBackgroundBounds)
-					return UnionRect(sectionBounds, backgroundBounds);
-				return sectionBounds;
+					cachedActiveBounds = UnionRect(sectionBounds, backgroundBounds);
+				else
+					cachedActiveBounds = sectionBounds;
+				break;
 
 			case ClampMode.SectionOnly:
 			default:
-				return sectionBounds;
+				cachedActiveBounds = sectionBounds;
+				break;
 		}
+
+		activeBoundsDirty = false;
+		return cachedActiveBounds;
 	}
 
 	private Rect UnionRect(Rect a, Rect b)
@@ -205,7 +247,12 @@ public class CameraController : MonoBehaviour
 
 		// If active bounds are not set yet, just return current position
 		if (active.width <= 0f || active.height <= 0f)
-			return transform.position;
+		{
+			// No valid bounds yet — allow the camera to move freely to the desired position
+			// (useful during initial scene setup when section bounds may be zero).
+			Debug.Log("[CameraController] Active bounds are empty — returning unclamped desired position.");
+			return new Vector3(desired.x, desired.y, transform.position.z);
+		}
 
 		float halfH = cam.orthographicSize;
 		float halfW = halfH * cam.aspect;

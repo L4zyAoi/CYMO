@@ -630,6 +630,15 @@ public class GameManager : MonoBehaviour
 		if (cameraController != null)
 			bgForSection = FindBackgroundForSection(currSectionIndex);
 
+		// Fallback: if no explicit mapping exists, try to find any background sprite in the scene
+		// whose name contains "background" and choose the one nearest this section's spawn point.
+		if (bgForSection == null && cameraController != null)
+		{
+			bgForSection = FindAnyBackgroundFallbackForSection(section, currSectionIndex);
+			if (bgForSection != null)
+				Debug.Log($"[GameManager] Using fallback scene background '{bgForSection.gameObject.name}' for section {currSectionIndex}.");
+		}
+
 		// 2. Teleport Player
 		if (playerTransform != null)
 		{
@@ -936,8 +945,11 @@ public class GameManager : MonoBehaviour
 
 		Debug.Log($"[GameManager] LoadMapScene validation passed. currMap='{currMap.mapName}', targetSection='{targetSection.sectionName}', sectionIndex={sectionIndex}");
 
-		// After re-binding and the scene is ready, place the player in the requested section
-		GoToSectionFromExitOrSection(sectionIndex, exitWalkTarget);
+		// After re-binding and the scene is ready, place the player in the requested section.
+		// IMPORTANT: On fresh map loads, `sectionIndex` is a direct section index, not an exit id.
+		// Using GoToSectionFromExitOrSection here can misinterpret values like 0/1 as exit ids
+		// (if ExitLink.exitId matches), causing camera/player to land in the wrong section.
+		GoToSection(sectionIndex, false, default, exitWalkTarget);
 
 		// Hide the loading screen now that the scene is loaded and ready
 		if (LoadingScreenManager.Instance != null)
@@ -1369,6 +1381,43 @@ public class GameManager : MonoBehaviour
 				return sectionBackgrounds[i].background;
 		}
 		return null;
+	}
+
+	/// <summary>
+	/// Fallback helper: search the scene for any SpriteRenderer whose name contains "background"
+	/// and return the one nearest the section's spawn point. This helps scenes that do not
+	/// provide an explicit mapping in `sectionBackgrounds` but do include background sprites.
+	/// </summary>
+	private SpriteRenderer FindAnyBackgroundFallbackForSection(SectionData section, int sectionIndex)
+	{
+		try
+		{
+			SpriteRenderer[] allSR = FindObjectsOfType<SpriteRenderer>();
+			if (allSR == null || allSR.Length == 0) return null;
+			SpriteRenderer best = null;
+			float bestDist = float.MaxValue;
+			Vector2 target = section != null ? section.spawnPoint : Vector2.zero;
+			foreach (var sr in allSR)
+			{
+				if (sr == null || sr.sprite == null) continue;
+				string name = sr.gameObject.name.ToLowerInvariant();
+				if (!name.Contains("background")) continue;
+				float dist = Mathf.Abs(sr.transform.position.x - target.x) + Mathf.Abs(sr.transform.position.y - target.y);
+				if (dist < bestDist)
+				{
+					bestDist = dist;
+					best = sr;
+				}
+			}
+			if (best != null)
+				Debug.Log($"[GameManager] Fallback background found for section {sectionIndex}: {best.gameObject.name}");
+			return best;
+		}
+		catch (System.Exception e)
+		{
+			Debug.LogWarning($"[GameManager] FindAnyBackgroundFallbackForSection failed: {e.Message}");
+			return null;
+		}
 	}
 
 	private IEnumerator FitBackgroundNextFrame(int sectionIndex, SpriteRenderer bg, float padding, bool center)

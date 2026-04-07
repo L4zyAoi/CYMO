@@ -31,8 +31,28 @@ public class ChapterData : ScriptableObject
     [Tooltip("If true, the opening video will only play once and then be skipped on subsequent starts.")]
     public bool openingVideoPlayOnce = true;
 
+    [Header("Map/Chapter Transition")]
+    [Tooltip("Optional: a video clip to play as a transition when this chapter is exited (e.g., before loading the next chapter).")]
+    public UnityEngine.Video.VideoClip transitionVideoClip;
+
+    [Tooltip("If true, the transition video will only play once (skipped on subsequent exits).")]
+    public bool transitionVideoPlayOnce = false;
+
     [Tooltip("All quest items (badges) that are relevant to this chapter. These will be displayed as slots in the Progress Panel.")]
     public ItemData[] chapterBadges = new ItemData[0];
+
+    [Header("Completion Cinematic")]
+    [Tooltip("Optional: video clip to play when the chapter's badges are all collected.")]
+    public UnityEngine.Video.VideoClip completionVideoClip;
+
+    [Tooltip("If true, the completion video will only play once and then be skipped on subsequent completions.")]
+    public bool completionVideoPlayOnce = true;
+
+    [Tooltip("Optional: name of a sprite-based cutscene (from CutsceneManager) to play when the chapter's badges are all collected.")]
+    public string completionCutsceneName = "";
+
+    [Tooltip("If true, the completion cutscene will only play once and then be skipped on subsequent completions.")]
+    public bool completionCutscenePlayOnce = true;
 
     #region Helpers
     /// <summary>

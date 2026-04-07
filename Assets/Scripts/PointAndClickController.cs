@@ -81,6 +81,11 @@ public class PointAndClickController : MonoBehaviour
     public AudioClip celebrationSFX;
     [Tooltip("Volume scale for the celebration SFX (0-1).")]
     [Range(0f, 1f)] public float celebrationSFXVolume = 1.0f;
+    [Header("Post-Celebration")]
+    [Tooltip("Optional animator state to cross-fade to when the celebration ends. Leave blank to only clear walking flag.")]
+    public string postCelebrationState = "idle";
+    [Tooltip("Cross-fade duration used when applying the post-celebration state.")]
+    public float postCelebrationCrossFade = 0.05f;
 
     [Header("Audio")]
     public AudioClip clickSFX;
@@ -122,6 +127,7 @@ public class PointAndClickController : MonoBehaviour
     private float stepTimer = 0f;
     private bool warnedNoCam = false;
     private float defaultFacingSign = 1f;
+    private Coroutine celebrationCoroutine = null;
     private Collider2D cachedHoverCollider = null;
     private float lastHoverCheckTime = 0f;
     private const float HOVER_CHECK_INTERVAL = 0.1f; // Check hover every 100ms instead of every frame
@@ -624,18 +630,42 @@ public class PointAndClickController : MonoBehaviour
         float dur = (overrideDuration > 0f) ? overrideDuration : celebrationDuration;
         if (dur > 0f)
         {
-            StartCoroutine(EndCelebrationAfter(dur));
+            // Cancel existing celebration coroutine if present so timers don't overlap
+            if (celebrationCoroutine != null)
+            {
+                StopCoroutine(celebrationCoroutine);
+                celebrationCoroutine = null;
+            }
+            celebrationCoroutine = StartCoroutine(EndCelebrationAfter(dur));
         }
     }
 
     private IEnumerator EndCelebrationAfter(float duration)
     {
         yield return new WaitForSeconds(duration);
+        // Clear any transient flags and optionally cross-fade back to a post-celebration state.
+        if (animator != null)
+        {
+            if (!string.IsNullOrEmpty(postCelebrationState))
+            {
+                try
+                {
+                    animator.CrossFadeInFixedTime(postCelebrationState, Mathf.Max(0f, postCelebrationCrossFade));
+                }
+                catch (Exception)
+                {
+                    // If crossfade fails (state doesn't exist), fall back to clearing walking flag
+                    if (!string.IsNullOrEmpty(isWalkingParam))
+                        animator.SetBool(isWalkingParam, false);
+                }
+            }
+            else if (!string.IsNullOrEmpty(isWalkingParam))
+            {
+                animator.SetBool(isWalkingParam, false);
+            }
+        }
 
-        // Clear any transient flags. We don't force a specific idle state since Animator graph
-        // should handle transitions based on parameters; we only restore walking flag to false.
-        if (animator != null && !string.IsNullOrEmpty(isWalkingParam))
-            animator.SetBool(isWalkingParam, false);
+        celebrationCoroutine = null;
     }
     #endregion
 

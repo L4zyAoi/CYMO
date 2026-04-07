@@ -28,6 +28,10 @@ public class InventoryManager : MonoBehaviour
     /// </summary>
     public event Action OnInvenChanged;
     public event Action OnQuestInvenChanged;
+    /// <summary>
+    /// Fired when a quest/badge item is added to the quest inventory. Provides the added ItemData.
+    /// </summary>
+    public event Action<ItemData> OnQuestItemAdded;
 
     #region Unity callback(s)
     void Awake()
@@ -67,6 +71,9 @@ public class InventoryManager : MonoBehaviour
         if (questItems.Contains(item)) return;
 
         questItems.Add(item);
+        // Notify per-item subscribers first
+        OnQuestItemAdded?.Invoke(item);
+        // Notify general quest inventory changed listeners
         OnQuestInvenChanged?.Invoke();
         Debug.Log($"[InventoryManager] Quest item collected: {item.itemName}");
     }

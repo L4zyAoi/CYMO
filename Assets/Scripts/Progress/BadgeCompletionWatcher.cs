@@ -24,6 +24,10 @@ public class BadgeCompletionWatcher : MonoBehaviour
     [Tooltip("Enable verbose debug logs for troubleshooting.")]
     public bool debugLogs = false;
 
+    [Header("Per-badge Celebration")]
+    [Tooltip("If true, trigger celebration each time a badge is successfully added to the quest inventory. ")]
+    public bool celebratePerBadge = true;
+
     [Header("Celebration")]
     [Tooltip("Make the player character play celebration animation when chapter badges complete.")]
     public bool celebratePlayer = true;
@@ -32,10 +36,24 @@ public class BadgeCompletionWatcher : MonoBehaviour
     [Tooltip("Override duration passed to character celebration (<=0 uses controller default).")]
     public float celebrationDuration = 0f;
 
+    [Header("Advance After Cinematic")]
+    [Tooltip("If true, advance to the next map when the completion cinematic finishes.")]
+    public bool advanceToNextMap = false;
+
+    [Tooltip("If true, advance to the next chapter when the completion cinematic finishes. Takes priority over next-map if both are enabled.")]
+    public bool advanceToNextChapter = false;
+
+    [Header("Transition Video")]
+    [Tooltip("Optional: fallback transition video to play before advancing when chapter-level transition is not set.")]
+    public UnityEngine.Video.VideoClip transitionVideoClip;
+    [Tooltip("If true, the fallback transition video will only play once and then be skipped on subsequent advances.")]
+    public bool transitionVideoPlayOnce = false;
+
     private bool hasPlayedForCurrentChapter = false;
 
     // Track subscription state so we can safely unsubscribe
     private bool subscribedInventory = false;
+    private bool subscribedQuestAdded = false;
     private bool subscribedChapter = false;
     private Coroutine ensureSubsRoutine = null;
 
@@ -71,6 +89,13 @@ public class BadgeCompletionWatcher : MonoBehaviour
                 if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Subscribed to InventoryManager.OnQuestInvenChanged");
             }
 
+            if (!subscribedQuestAdded && InventoryManager.Instance != null)
+            {
+                InventoryManager.Instance.OnQuestItemAdded += OnQuestItemAdded;
+                subscribedQuestAdded = true;
+                if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Subscribed to InventoryManager.OnQuestItemAdded");
+            }
+
             if (!subscribedChapter && GameManager.Instance != null)
             {
                 GameManager.Instance.onChapterChanged += OnChapterChanged;
@@ -79,7 +104,7 @@ public class BadgeCompletionWatcher : MonoBehaviour
             }
 
             // If we've subscribed to at least one manager, stop waiting early.
-            if (subscribedInventory || subscribedChapter)
+            if (subscribedInventory || subscribedQuestAdded || subscribedChapter)
                 break;
 
             waited++;
@@ -98,6 +123,12 @@ public class BadgeCompletionWatcher : MonoBehaviour
         {
             InventoryManager.Instance.OnQuestInvenChanged -= OnQuestInventoryChanged;
             subscribedInventory = false;
+        }
+
+        if (subscribedQuestAdded && InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnQuestItemAdded -= OnQuestItemAdded;
+            subscribedQuestAdded = false;
         }
 
         if (subscribedChapter && GameManager.Instance != null)
@@ -119,6 +150,13 @@ public class BadgeCompletionWatcher : MonoBehaviour
     {
         if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Inventory changed - checking completion.");
         CheckForCompletion();
+    }
+
+    private void OnQuestItemAdded(ItemData item)
+    {
+        if (!celebratePerBadge) return;
+        if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Quest item added: {item?.itemName ?? "(null)"} - triggering per-badge celebration.");
+        CelebrateCharacters();
     }
 
     private void CheckForCompletion()
@@ -159,56 +197,179 @@ public class BadgeCompletionWatcher : MonoBehaviour
             }
         }
 
-        // All badges collected -> start celebration then cinematic
+        // All badges collected -> start completion sequence (may include celebration if configured)
         if (debugLogs) Debug.Log("[BadgeCompletionWatcher] All badges collected - starting completion sequence.");
         StartCompletionSequence();
     }
 
     private void TriggerCinematic()
     {
-        // Prefer video if configured
+        // Check for chapter-specific completion media first
+        ChapterData chapter = GameManager.Instance != null ? GameManager.Instance.currChapter : null;
+
+        if (chapter != null)
+        {
+            // 1) Chapter-level video
+            if (preferVideo && chapter.completionVideoClip != null && VideoCutsceneManager.Instance != null)
+            {
+                if (chapter.completionVideoPlayOnce)
+                {
+                    bool started = VideoCutsceneManager.Instance.PlayVideoClipOnce(chapter.completionVideoClip, OnCinematicComplete);
+                    if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested chapter video '{chapter.completionVideoClip.name}', started={started}");
+                    if (!started)
+                    {
+                        if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Chapter video already played; invoking completion callback immediately.");
+                        OnCinematicComplete();
+                    }
+                    return;
+                }
+                else
+                {
+                    VideoCutsceneManager.Instance.PlayVideoClip(chapter.completionVideoClip, OnCinematicComplete);
+                    if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested chapter video '{chapter.completionVideoClip.name}' (may play multiple times).");
+                    return;
+                }
+            }
+
+            // 2) Chapter-level sprite cutscene
+            if (!string.IsNullOrWhiteSpace(chapter.completionCutsceneName) && CutsceneManager.Instance != null)
+            {
+                if (chapter.completionCutscenePlayOnce)
+                {
+                    bool started = CutsceneManager.Instance.PlayCutsceneByNameOnce(chapter.completionCutsceneName, OnCinematicComplete);
+                    if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested chapter cutscene '{chapter.completionCutsceneName}', started={started}");
+                    if (!started)
+                    {
+                        if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Chapter cutscene already played; invoking completion callback immediately.");
+                        OnCinematicComplete();
+                    }
+                    return;
+                }
+                else
+                {
+                    bool started = CutsceneManager.Instance.PlayCutsceneByName(chapter.completionCutsceneName, OnCinematicComplete);
+                    if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested chapter cutscene '{chapter.completionCutsceneName}', started={started}");
+                    return;
+                }
+            }
+        }
+
+        // No chapter-level media (or manager missing) — fall back to watcher-configured media
         if (preferVideo && videoClip != null && VideoCutsceneManager.Instance != null)
         {
             if (videoPlayOnce)
             {
                 bool started = VideoCutsceneManager.Instance.PlayVideoClipOnce(videoClip, OnCinematicComplete);
-                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested video '{videoClip.name}', started={started}");
+                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested fallback video '{videoClip.name}', started={started}");
+                if (!started)
+                {
+                    if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Fallback video already played; invoking completion callback immediately.");
+                    OnCinematicComplete();
+                }
                 return;
             }
             else
             {
                 VideoCutsceneManager.Instance.PlayVideoClip(videoClip, OnCinematicComplete);
-                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested video '{videoClip.name}' (may play multiple times).");
+                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested fallback video '{videoClip.name}' (may play multiple times).");
                 return;
             }
         }
 
-        // Fallback to sprite-based cutscene
         if (!string.IsNullOrWhiteSpace(cutsceneName) && CutsceneManager.Instance != null)
         {
             if (cutscenePlayOnce)
             {
                 bool started = CutsceneManager.Instance.PlayCutsceneByNameOnce(cutsceneName, OnCinematicComplete);
-                hasPlayedForCurrentChapter = true;
-                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested cutscene '{cutsceneName}', started={started}");
+                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested fallback cutscene '{cutsceneName}', started={started}");
+                if (!started)
+                {
+                    if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Fallback cutscene already played; invoking completion callback immediately.");
+                    OnCinematicComplete();
+                }
                 return;
             }
             else
             {
                 bool started = CutsceneManager.Instance.PlayCutsceneByName(cutsceneName, OnCinematicComplete);
-                hasPlayedForCurrentChapter = true;
-                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested cutscene '{cutsceneName}', started={started}");
+                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested fallback cutscene '{cutsceneName}', started={started}");
                 return;
             }
         }
 
-        Debug.LogWarning("[BadgeCompletionWatcher] No cinematic configured or corresponding manager missing.");
-        // Nothing else to do — celebration already played by StartCompletionSequence()
+        Debug.LogWarning("[BadgeCompletionWatcher] No cinematic configured at chapter or watcher level, or managers missing.");
     }
 
     private void OnCinematicComplete()
     {
         if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Cinematic completed for chapter badges.");
+        AdvanceAfterCinematic();
+    }
+
+    private void AdvanceAfterCinematic()
+    {
+        // Determine advance action to perform after any optional transition video
+        System.Action performAdvance = () =>
+        {
+            if (advanceToNextChapter && GameManager.Instance != null)
+            {
+                if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Advancing to next chapter after transition video.");
+                GameManager.Instance.GoToNextChapter();
+                return;
+            }
+
+            if (advanceToNextMap && GameManager.Instance != null)
+            {
+                if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Advancing to next map after transition video.");
+                GameManager.Instance.GoToNextMap();
+            }
+        };
+
+        // If no advance is configured, nothing to do
+        if (!advanceToNextChapter && !advanceToNextMap)
+            return;
+
+        // Prefer chapter-specified transition video, then fall back to watcher-configured one
+        UnityEngine.Video.VideoClip clipToPlay = null;
+        bool playOnce = false;
+        ChapterData chapter = GameManager.Instance != null ? GameManager.Instance.currChapter : null;
+
+        if (chapter != null && chapter.transitionVideoClip != null)
+        {
+            clipToPlay = chapter.transitionVideoClip;
+            playOnce = chapter.transitionVideoPlayOnce;
+            if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Using chapter transition video: {clipToPlay.name}");
+        }
+        else if (transitionVideoClip != null)
+        {
+            clipToPlay = transitionVideoClip;
+            playOnce = transitionVideoPlayOnce;
+            if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Using fallback transition video: {clipToPlay.name}");
+        }
+
+        if (clipToPlay != null && VideoCutsceneManager.Instance != null)
+        {
+            if (playOnce)
+            {
+                bool started = VideoCutsceneManager.Instance.PlayVideoClipOnce(clipToPlay, () => { performAdvance(); });
+                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested transition video '{clipToPlay.name}', started={started}");
+                if (!started)
+                {
+                    if (debugLogs) Debug.Log("[BadgeCompletionWatcher] Transition video already played; advancing immediately.");
+                    performAdvance();
+                }
+            }
+            else
+            {
+                VideoCutsceneManager.Instance.PlayVideoClip(clipToPlay, () => { performAdvance(); });
+                if (debugLogs) Debug.Log($"[BadgeCompletionWatcher] Requested transition video '{clipToPlay.name}' (may play multiple times).");
+            }
+
+            return;
+        }
+
+        // No transition video available — advance immediately
+        performAdvance();
     }
 
     private void StartCompletionSequence()
@@ -222,8 +383,9 @@ public class BadgeCompletionWatcher : MonoBehaviour
         // Mark as played to avoid duplicate triggers while we wait/play
         hasPlayedForCurrentChapter = true;
 
-        // First, trigger celebrations
-        CelebrateCharacters();
+        // Trigger celebrations only if per-badge celebration is disabled.
+        if (!celebratePerBadge)
+            CelebrateCharacters();
 
         // Determine wait time: prefer explicit watcher override, else player's controller default, else fallback
         float waitTime = celebrationDuration;

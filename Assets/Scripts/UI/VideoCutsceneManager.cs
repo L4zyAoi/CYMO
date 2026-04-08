@@ -113,6 +113,10 @@ public class VideoCutsceneManager : MonoBehaviour
         // Defensive unsubscribe in case of a previous interrupted playback.
         videoPlayer.loopPointReached -= OnVideoFinished;
         videoPlayer.loopPointReached += OnVideoFinished;
+
+        // Avoid overlap between persistent background music and the video's own audio.
+        AudioManager.Instance?.StopMusic();
+
         videoPlayer.Play();
 
         Debug.Log($"[VideoCutsceneManager] renderMode={videoPlayer.renderMode}, targetTexture={(videoPlayer.targetTexture != null ? videoPlayer.targetTexture.name : "null")}");

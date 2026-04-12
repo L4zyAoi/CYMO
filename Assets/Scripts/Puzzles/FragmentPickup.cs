@@ -1,10 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// A world fragment of an item that appears in sequence.
+/// A world fragment of an item.
 /// Multiple FragmentPickup objects share a FragmentGroupData.
 /// 
-/// Flow: Fragment 1 visible → Player clicks → Falls/Collects → Fragment 2 appears → etc.
+/// Flow (sequential mode): Fragment 1 visible → collect → Fragment 2 appears → etc.
+/// Flow (non-sequential mode): all fragments are visible and can be collected in any order.
 /// When all fragments in sequence are collected, the full item assembles.
 ///
 /// SETUP:
@@ -27,7 +28,7 @@ public class FragmentPickup : MonoBehaviour
     public FragmentGroupData group;
 
     [Tooltip("Sequence order: 0 = first, 1 = second, 2 = third, etc. " +
-             "Only the current sequence number will be visible and interactive.")]
+             "In non-sequential mode this is still used as the unique fragment index.")]
     public int sequenceIndex = 0;
 
     [Tooltip("Optional: a GameObject (particle/sprite) briefly shown on collection. " +
@@ -53,6 +54,17 @@ public class FragmentPickup : MonoBehaviour
     [Header("Auto-Collect")]
     [Tooltip("If true, the interaction starts automatically when the player touches it (requires Trigger Collider).")]
     public bool isAutoCollect = false;
+
+    [Header("Fragment Stack (Optional)")]
+    [Tooltip("If true, each collected fragment adds one unit of 'fragmentStackItem' to inventory.")]
+    public bool useFragmentStack = false;
+    [Tooltip("Inventory item used to represent collected fragment pieces.")]
+    public ItemData fragmentStackItem;
+    [Min(1)]
+    [Tooltip("How many fragment stack units are consumed when assembly completes.")]
+    public int fragmentStackRequiredForAssemble = 3;
+    [Tooltip("If true, the assembled result is added directly to quest/badge inventory instead of a normal slot.")]
+    public bool addAssembledResultAsQuestItem = false;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -85,6 +97,20 @@ public class FragmentPickup : MonoBehaviour
     }
 
     private void UpdateVisibility()
+    {
+        if (group == null) return;
+
+        if (group.RequireSequentialCollection)
+        {
+            UpdateVisibilitySequential();
+        }
+        else
+        {
+            UpdateVisibilityNonSequential();
+        }
+    }
+
+    private void UpdateVisibilitySequential()
     {
         if (group == null) return;
 
@@ -124,6 +150,29 @@ public class FragmentPickup : MonoBehaviour
                 StartCoroutine(ShowFragmentWithDelay());
             }
         }
+    }
+
+    private void UpdateVisibilityNonSequential()
+    {
+        if (group == null) return;
+
+        bool collected = group.IsFragmentCollected(sequenceIndex);
+        if (collected)
+        {
+            if (fragmentCollider != null) fragmentCollider.enabled = false;
+
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null && sr.enabled)
+                StartCoroutine(HideVisualsAfterDelay(3.5f));
+            else
+                SetVisualsEnabled(false);
+
+            return;
+        }
+
+        // Non-sequential: all uncollected fragments should remain available.
+        SetVisualsEnabled(true);
+        if (fragmentCollider != null) fragmentCollider.enabled = true;
     }
 
     private void SetVisualsEnabled(bool isEnabled)
@@ -189,10 +238,17 @@ public class FragmentPickup : MonoBehaviour
             return;
         }
 
-        // Safety check: only collect if this is the current sequence
-        if (group.CurrentSequenceIndex != sequenceIndex)
+        // Safety check: sequential mode requires strict ordering.
+        if (group.RequireSequentialCollection && group.CurrentSequenceIndex != sequenceIndex)
         {
             Debug.LogWarning($"[FragmentPickup] Tried to collect sequence {sequenceIndex}, but current is {group.CurrentSequenceIndex}!");
+            return;
+        }
+
+        // Safety check: non-sequential mode should ignore duplicates.
+        if (!group.RequireSequentialCollection && group.IsFragmentCollected(sequenceIndex))
+        {
+            Debug.LogWarning($"[FragmentPickup] Sequence {sequenceIndex} already collected.");
             return;
         }
 
@@ -221,11 +277,10 @@ public class FragmentPickup : MonoBehaviour
         // Advance the sequence
         bool allCollected = group.CollectFragment(sequenceIndex);
 
-        if (!allCollected)
-        {
-            // Normal sequential apple - it just falls and stays hidden after delay
-        }
-        else
+        // Optional stack progress for this puzzle flow.
+        AddFragmentStackProgress();
+
+        if (allCollected)
         {
             // FINAL APPLE - Special 3-stage sequence (Fall -> Ground Idle -> Collect)
             StartCoroutine(FinalCollectionSequence());
@@ -301,12 +356,67 @@ public class FragmentPickup : MonoBehaviour
         if (assembleSuccessSFX != null && AudioManager.Instance != null)
             AudioManager.Instance.PlaySFX(assembleSuccessSFX);
 
-        bool added = InventoryManager.Instance != null &&
-                     InventoryManager.Instance.TryAddItem(group.resultItem);
+        if (useFragmentStack)
+            ConsumeFragmentStackForAssemble();
+
+        bool added = false;
+        if (InventoryManager.Instance != null)
+        {
+            if (addAssembledResultAsQuestItem)
+            {
+                bool hadBefore = InventoryManager.Instance.Contains(group.resultItem);
+                InventoryManager.Instance.AddQuestItem(group.resultItem);
+                added = !hadBefore || InventoryManager.Instance.Contains(group.resultItem);
+            }
+            else
+            {
+                added = InventoryManager.Instance.TryAddItem(group.resultItem);
+            }
+        }
 
         if (!added)
         {
             Debug.LogWarning($"[FragmentPickup] Could not add '{group.groupName}' to inventory — inventory is full!");
+        }
+    }
+
+    private void AddFragmentStackProgress()
+    {
+        if (!useFragmentStack) return;
+
+        if (fragmentStackItem == null)
+        {
+            Debug.LogWarning($"[FragmentPickup] useFragmentStack enabled on '{gameObject.name}' but fragmentStackItem is missing.");
+            return;
+        }
+
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogError("[FragmentPickup] Cannot track fragment stack because InventoryManager is missing.");
+            return;
+        }
+
+        bool added = InventoryManager.Instance.TryAddItem(fragmentStackItem);
+        if (!added)
+        {
+            Debug.LogWarning($"[FragmentPickup] Could not add fragment stack item '{fragmentStackItem.itemName}' — inventory is full.");
+            return;
+        }
+
+        int current = InventoryManager.Instance.GetItemCount(fragmentStackItem);
+        Debug.Log($"[FragmentPickup] Fragment stack '{fragmentStackItem.itemName}': {current}");
+    }
+
+    private void ConsumeFragmentStackForAssemble()
+    {
+        if (fragmentStackItem == null || InventoryManager.Instance == null) return;
+
+        int required = Mathf.Max(1, fragmentStackRequiredForAssemble);
+        bool removed = InventoryManager.Instance.TryRemoveItemAmount(fragmentStackItem, required);
+        if (!removed)
+        {
+            int has = InventoryManager.Instance.GetItemCount(fragmentStackItem);
+            Debug.LogWarning($"[FragmentPickup] Could not consume {required} '{fragmentStackItem.itemName}' for assembly (have {has}).");
         }
     }
 }

@@ -994,6 +994,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   requiredItem: {fileID: 11400000, guid: 436a701cf72b3e044982141b5d4ee9ff, type: 2}
+  obstacleToNotify: {fileID: 0}
   OnItemUsed:
     m_PersistentCalls:
       m_Calls:
@@ -1816,7 +1817,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &118720534
@@ -4043,6 +4044,10 @@ MonoBehaviour:
   collectSFX: {fileID: 8300000, guid: 42f5c90d13d4fba4e80863dd07420b47, type: 3}
   assembleSuccessSFX: {fileID: 8300000, guid: 2a7eb389606764242ab829315970390e, type: 3}
   isAutoCollect: 0
+  useFragmentStack: 0
+  fragmentStackItem: {fileID: 0}
+  fragmentStackRequiredForAssemble: 3
+  addAssembledResultAsQuestItem: 0
 --- !u!60 &575964609
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -4851,6 +4856,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1599775277}
+    - target: {fileID: 5345292718219616593, guid: d3712e4a2b1bcbb4684542de02f0a261, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 191717458061174926, guid: e2af6a1349e472549a7ea2c80081a037, type: 3}
     - target: {fileID: 5404781189180809624, guid: d3712e4a2b1bcbb4684542de02f0a261, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -5133,7 +5142,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.13, y: 1.81}
+    oldSize: {x: 4.27, y: 3.54}
     newSize: {x: 2.13, y: 1.81}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -6268,7 +6277,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1038165106
@@ -6375,7 +6384,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1047659822
@@ -6482,7 +6491,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1061620217
@@ -6794,7 +6803,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1153465775
@@ -6881,7 +6890,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1157570591
@@ -6926,6 +6935,10 @@ MonoBehaviour:
   collectSFX: {fileID: 8300000, guid: 3c5c516aea48deb40834e2c5fe0780b8, type: 3}
   assembleSuccessSFX: {fileID: 0}
   isAutoCollect: 0
+  useFragmentStack: 0
+  fragmentStackItem: {fileID: 0}
+  fragmentStackRequiredForAssemble: 3
+  addAssembledResultAsQuestItem: 0
 --- !u!60 &1157570593
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -7210,7 +7223,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1225250978
@@ -7382,7 +7395,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1269533063 stripped
@@ -7609,6 +7622,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 526627372523610772, guid: 2c5f42672b31caf46bf40b12765db6d6, type: 3}
+      propertyPath: m_Size.x
+      value: 3.96
+      objectReference: {fileID: 0}
+    - target: {fileID: 526627372523610772, guid: 2c5f42672b31caf46bf40b12765db6d6, type: 3}
+      propertyPath: m_Size.y
+      value: 2.72
+      objectReference: {fileID: 0}
+    - target: {fileID: 526627372523610772, guid: 2c5f42672b31caf46bf40b12765db6d6, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 534873111316007224, guid: 93e5a44bf0ca3cb4481a80173cec38e5, type: 3}
+    - target: {fileID: 526627372523610772, guid: 2c5f42672b31caf46bf40b12765db6d6, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 699981928712782738, guid: 2c5f42672b31caf46bf40b12765db6d6, type: 3}
       propertyPath: angleOffset
       value: 260
@@ -8089,6 +8118,7 @@ MonoBehaviour:
   initialGuidanceWorldPosition: {x: -4.12, y: -0.31, z: 0}
   initialGuidanceSceneObject: {fileID: 1318788242}
   initialGuidanceSectionIndexOverride: 7
+  initialGuidanceScaleMultiplier: 0.65
   forceStartCutscenesDuringBlack: 1
 --- !u!114 &1599775275
 MonoBehaviour:
@@ -9130,7 +9160,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1891467488 stripped
@@ -9546,6 +9576,10 @@ MonoBehaviour:
   collectSFX: {fileID: 8300000, guid: 384bd71fb31190840a270278623edcc8, type: 3}
   assembleSuccessSFX: {fileID: 0}
   isAutoCollect: 0
+  useFragmentStack: 0
+  fragmentStackItem: {fileID: 0}
+  fragmentStackRequiredForAssemble: 3
+  addAssembledResultAsQuestItem: 0
 --- !u!60 &1960372109
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -10131,7 +10165,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &2080585764

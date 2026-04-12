@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2cdad43f7fd4f4c9daddb382cab798, type: 3}
+  m_Name: LiverBadge1_Assembled
+  m_EditorClassIdentifier: 
+  itemName: Liver Badge 1
+  description: Assembled from three fragments in Map 2.
+  icon: {fileID: -5681598347077047194, guid: 6293a449f18771e4f8b18f10514ee6cc, type: 3}
+  emptyBadgeIcon: {fileID: 7185253795544875346, guid: 8eb3793aa2a2b99438ce3d455a86ab9b, type: 3}
+  isQuestItem: 1
+  useStacking: 0
+  maxStack: 99

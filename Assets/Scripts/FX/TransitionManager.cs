@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Manages cinematic transitions between sections.
@@ -72,18 +73,12 @@ public class TransitionManager : MonoBehaviour
         // Auto-find UI Canvas if not assigned
         if (uiCanvasGroup == null)
         {
-            // More efficient approach: iterate through canvases instead of FindFirstObjectByType
-            Canvas[] canvases = Resources.FindObjectsOfTypeAll<Canvas>();
-            foreach (Canvas canvas in canvases)
+            uiCanvasGroup = FindCanvasGroupInScene(gameObject.scene);
+
+            // Fallback if no active canvas exists in the same scene.
+            if (uiCanvasGroup == null)
             {
-                if (!canvas.gameObject.activeInHierarchy) continue;
-                
-                uiCanvasGroup = canvas.GetComponent<CanvasGroup>();
-                if (uiCanvasGroup == null)
-                {
-                    uiCanvasGroup = canvas.gameObject.AddComponent<CanvasGroup>();
-                }
-                break;
+                uiCanvasGroup = FindCanvasGroupInAnyScene();
             }
         }
 
@@ -106,6 +101,50 @@ public class TransitionManager : MonoBehaviour
             c.a = 0;
             curtain.color = c;
         }
+    }
+
+    private CanvasGroup FindCanvasGroupInScene(Scene scene)
+    {
+        if (!scene.IsValid())
+            return null;
+
+		Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Canvas canvas in canvases)
+        {
+            if (canvas == null) continue;
+            if (!canvas.gameObject.activeInHierarchy) continue;
+            if (!canvas.gameObject.scene.IsValid() || !canvas.gameObject.scene.isLoaded) continue;
+            if (canvas.gameObject.scene != scene) continue;
+
+            CanvasGroup cg = canvas.GetComponent<CanvasGroup>();
+            if (cg == null)
+            {
+                cg = canvas.gameObject.AddComponent<CanvasGroup>();
+            }
+            return cg;
+        }
+
+        return null;
+    }
+
+    private CanvasGroup FindCanvasGroupInAnyScene()
+    {
+		Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Canvas canvas in canvases)
+        {
+            if (canvas == null) continue;
+            if (!canvas.gameObject.activeInHierarchy) continue;
+            if (!canvas.gameObject.scene.IsValid() || !canvas.gameObject.scene.isLoaded) continue;
+
+            CanvasGroup cg = canvas.GetComponent<CanvasGroup>();
+            if (cg == null)
+            {
+                cg = canvas.gameObject.AddComponent<CanvasGroup>();
+            }
+            return cg;
+        }
+
+        return null;
     }
 
     /// <summary>

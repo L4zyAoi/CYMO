@@ -89,7 +89,7 @@ public class AudioManager : MonoBehaviour
         }
 
         // AUDIO LISTENER CHECK: Ensure your ears are "ON" in the scene!
-        if (FindObjectOfType<AudioListener>() == null)
+        if (FindAnyObjectByType<AudioListener>() == null)
             Debug.LogWarning("[AudioManager] CRITICAL: No AudioListener found in the scene! You won't hear any sound. Ensure there is one attached to your Main Camera.");
 
         // ROUTING HEALTH CHECK: Ensure the sources are actually plugged into the Mixer groups.

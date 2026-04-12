@@ -855,7 +855,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: efccc8baa21f88f4a922a0ea9d9e19f2, type: 3}
+  m_Sprite: {fileID: 9039109731919755088, guid: efccc8baa21f88f4a922a0ea9d9e19f2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -925,7 +925,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &504083642
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2372,7 +2372,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6220736335902542612, guid: 4f846382c54b4104fa86bf0f882b2a4c, type: 3}
+  m_Sprite: {fileID: 191717458061174926, guid: e2af6a1349e472549a7ea2c80081a037, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2768,6 +2768,7 @@ MonoBehaviour:
   initialGuidanceWorldPosition: {x: 0, y: 0, z: 0}
   initialGuidanceSceneObject: {fileID: 0}
   initialGuidanceSectionIndexOverride: -1
+  initialGuidanceScaleMultiplier: 1
   forceStartCutscenesDuringBlack: 1
 --- !u!1 &1539813772
 GameObject:

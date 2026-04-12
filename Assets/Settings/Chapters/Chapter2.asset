@@ -16,3 +16,17 @@ MonoBehaviour:
   maps:
   - {fileID: 11400000, guid: 004f7e03b3f3d7d4e8c7f9bf66298ff8, type: 2}
   defaultMapIndex: 0
+  openingCutsceneName: 
+  openingCutscenePlayOnce: 1
+  openingVideoClip: {fileID: 32900000, guid: ff9104f6bfcaf2947b61e4241c260892, type: 3}
+  openingVideoPlayOnce: 1
+  transitionVideoClip: {fileID: 0}
+  transitionVideoPlayOnce: 0
+  chapterBadges:
+  - {fileID: 11400000, guid: 824838b68d8746b880997737f22c3699, type: 2}
+  - {fileID: 11400000, guid: 94d2a3d42cdf4beea24da3b82c544952, type: 2}
+  - {fileID: 11400000, guid: eabdcc87789b417bbe06c4c0181918ef, type: 2}
+  completionVideoClip: {fileID: 32900000, guid: ff9104f6bfcaf2947b61e4241c260892, type: 3}
+  completionVideoPlayOnce: 1
+  completionCutsceneName: 
+  completionCutscenePlayOnce: 1

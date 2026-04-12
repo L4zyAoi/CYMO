@@ -30,6 +30,8 @@ public class InventorySlotUI : MonoBehaviour,
     public Image       iconImg;     // child Image that shows the item icon
     public GameObject  tooltipObj; // child Text/TMP shown on hover
     public TMP_Text    tooltipTxt;   // label inside tooltipObject
+    [Tooltip("Optional stack count label. If left empty, one is created at runtime.")]
+    public TMP_Text    stackCountTxt;
 
     [Header("Drag Ghost")]
     [Tooltip("A CanvasGroup on the ghost image, used to make the ghost semi-transparent.")]
@@ -40,7 +42,11 @@ public class InventorySlotUI : MonoBehaviour,
     private ItemData     draggedItem;  // item currently being dragged
 
     #region Unity callbacks
-    void Awake() => rootCanvas = GetComponentInParent<Canvas>();
+    void Awake()
+    {
+        rootCanvas = GetComponentInParent<Canvas>();
+        EnsureStackCountText();
+    }
 
     void Start()
     {
@@ -78,6 +84,8 @@ public class InventorySlotUI : MonoBehaviour,
             iconImg.enabled = false;
         }
 
+        UpdateStackCountDisplay(item);
+
         if (tooltipObj != null) tooltipObj.SetActive(false);
     }
     #endregion
@@ -89,7 +97,13 @@ public class InventorySlotUI : MonoBehaviour,
         if (item == null || tooltipObj == null) return;
 
         tooltipObj.SetActive(true);
-        if (tooltipTxt != null) tooltipTxt.text = item.itemName;
+        if (tooltipTxt != null)
+        {
+            int count = InventoryManager.Instance != null ? InventoryManager.Instance.GetSlotCount(slotIdx) : 1;
+            tooltipTxt.text = (item.useStacking && count > 1)
+                ? $"{item.itemName} x{count}"
+                : item.itemName;
+        }
     }
 
     public void OnPointerExit(PointerEventData _)
@@ -221,6 +235,61 @@ public class InventorySlotUI : MonoBehaviour,
             if (t != null) return t;
         }
         return null;
+    }
+
+    private void UpdateStackCountDisplay(ItemData item)
+    {
+        TMP_Text countLabel = EnsureStackCountText();
+        if (countLabel == null) return;
+
+        if (item == null || !item.useStacking || InventoryManager.Instance == null)
+        {
+            countLabel.gameObject.SetActive(false);
+            return;
+        }
+
+        int count = InventoryManager.Instance.GetSlotCount(slotIdx);
+        bool shouldShow = count > 1;
+        countLabel.gameObject.SetActive(shouldShow);
+
+        if (shouldShow)
+            countLabel.text = count.ToString();
+    }
+
+    private TMP_Text EnsureStackCountText()
+    {
+        if (stackCountTxt != null) return stackCountTxt;
+
+        Transform existing = transform.Find("StackCountText");
+        if (existing != null)
+        {
+            stackCountTxt = existing.GetComponent<TMP_Text>();
+            if (stackCountTxt != null) return stackCountTxt;
+        }
+
+        GameObject go = new GameObject("StackCountText");
+        go.transform.SetParent(transform, false);
+        go.transform.SetAsLastSibling();
+
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1f, 0f);
+        rt.anchorMax = new Vector2(1f, 0f);
+        rt.pivot = new Vector2(1f, 0f);
+        rt.anchoredPosition = new Vector2(-8f, 8f);
+        rt.sizeDelta = new Vector2(48f, 28f);
+
+        TextMeshProUGUI label = go.AddComponent<TextMeshProUGUI>();
+        label.alignment = TextAlignmentOptions.BottomRight;
+        label.fontSize = 24f;
+        label.color = Color.white;
+        label.text = string.Empty;
+
+        if (TMP_Settings.defaultFontAsset != null)
+            label.font = TMP_Settings.defaultFontAsset;
+
+        go.SetActive(false);
+        stackCountTxt = label;
+        return stackCountTxt;
     }
     #endregion
 }

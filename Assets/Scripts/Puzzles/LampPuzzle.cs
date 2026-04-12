@@ -383,7 +383,9 @@ public class LampPuzzle : MonoBehaviour
         if (target == null)
         {
             // Fallback: find one in scene (including inactive) in case inspector reference was missed.
-            target = FindObjectOfType<MolePuzzle>(true);
+            MolePuzzle[] molePuzzles = FindObjectsByType<MolePuzzle>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (molePuzzles.Length > 0)
+                target = molePuzzles[0];
             if (target != null)
             {
                 molePuzzle = target;

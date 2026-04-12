@@ -1,0 +1,1651 @@
+fileFormatVersion: 2
+guid: 87de9094307029343938b7cd9d6c3b04
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3264360782485235174
+    second: Z1_Microbe_pulled_6_0
+  - first:
+      213: 5963275675959235419
+    second: Z1_Microbe_pulled_6_1
+  - first:
+      213: -6203149501889957663
+    second: Z1_Microbe_pulled_6_2
+  - first:
+      213: -7536293244268323923
+    second: Z1_Microbe_pulled_6_3
+  - first:
+      213: -7413662697850537848
+    second: Z1_Microbe_pulled_6_4
+  - first:
+      213: -6587112631512010464
+    second: Z1_Microbe_pulled_6_5
+  - first:
+      213: 4022010661740637028
+    second: Z1_Microbe_pulled_6_6
+  - first:
+      213: 3354310679973679767
+    second: Z1_Microbe_pulled_6_7
+  - first:
+      213: 2932471762433682288
+    second: Z1_Microbe_pulled_6_8
+  - first:
+      213: -1273542882057552394
+    second: Z1_Microbe_pulled_6_9
+  - first:
+      213: -4217563662702710449
+    second: Z1_Microbe_pulled_6_10
+  - first:
+      213: -3199384669379736887
+    second: Z1_Microbe_pulled_6_11
+  - first:
+      213: 2908979383272218156
+    second: Z1_Microbe_pulled_6_12
+  - first:
+      213: 4786905549758364872
+    second: Z1_Microbe_pulled_6_13
+  - first:
+      213: -4089344608364327244
+    second: Z1_Microbe_pulled_6_14
+  - first:
+      213: -975983207773960145
+    second: Z1_Microbe_pulled_6_15
+  - first:
+      213: -6944387924667176454
+    second: Z1_Microbe_pulled_6_16
+  - first:
+      213: 8391464929217459211
+    second: Z1_Microbe_pulled_6_17
+  - first:
+      213: -4843884870348811407
+    second: Z1_Microbe_pulled_6_18
+  - first:
+      213: 5304727142864586795
+    second: Z1_Microbe_pulled_6_19
+  - first:
+      213: -6697871399979065394
+    second: Z1_Microbe_pulled_6_20
+  - first:
+      213: 3830277726241857003
+    second: Z1_Microbe_pulled_6_21
+  - first:
+      213: 6445435791520357966
+    second: Z1_Microbe_pulled_6_22
+  - first:
+      213: 8443421035370846157
+    second: Z1_Microbe_pulled_6_23
+  - first:
+      213: -1246433247865012271
+    second: Z1_Microbe_pulled_6_24
+  - first:
+      213: 3209086368459677504
+    second: Z1_Microbe_pulled_6_25
+  - first:
+      213: -5640404137952145462
+    second: Z1_Microbe_pulled_6_26
+  - first:
+      213: -4781872263415741125
+    second: Z1_Microbe_pulled_6_27
+  - first:
+      213: -3146124865357719600
+    second: Z1_Microbe_pulled_6_28
+  - first:
+      213: 7013662185448786567
+    second: Z1_Microbe_pulled_6_29
+  - first:
+      213: -2335101097221421736
+    second: Z1_Microbe_pulled_6_30
+  - first:
+      213: -4652602194428904505
+    second: Z1_Microbe_pulled_6_31
+  - first:
+      213: 4273808576753329904
+    second: Z1_Microbe_pulled_6_32
+  - first:
+      213: -6535596483421475135
+    second: Z1_Microbe_pulled_6_33
+  - first:
+      213: -287785307935535454
+    second: Z1_Microbe_pulled_6_34
+  - first:
+      213: -8368149184307269496
+    second: Z1_Microbe_pulled_6_35
+  - first:
+      213: 4464792249879495187
+    second: Z1_Microbe_pulled_6_36
+  - first:
+      213: 3179616693695438510
+    second: Z1_Microbe_pulled_6_37
+  - first:
+      213: -1171005361297698260
+    second: Z1_Microbe_pulled_6_38
+  - first:
+      213: 9212446707257934421
+    second: Z1_Microbe_pulled_6_39
+  - first:
+      213: 2536540224200368461
+    second: Z1_Microbe_pulled_6_40
+  - first:
+      213: -8705134334548658385
+    second: Z1_Microbe_pulled_6_41
+  - first:
+      213: 8595346333477861806
+    second: Z1_Microbe_pulled_6_42
+  - first:
+      213: 8552776606376954567
+    second: Z1_Microbe_pulled_6_43
+  - first:
+      213: 9041911319131341076
+    second: Z1_Microbe_pulled_6_44
+  - first:
+      213: 8276753512485784167
+    second: Z1_Microbe_pulled_6_45
+  - first:
+      213: -4327263840849701768
+    second: Z1_Microbe_pulled_6_46
+  - first:
+      213: 5008721723820267255
+    second: Z1_Microbe_pulled_6_47
+  - first:
+      213: 676571815719891786
+    second: Z1_Microbe_pulled_6_48
+  - first:
+      213: -6811204610417766160
+    second: Z1_Microbe_pulled_6_49
+  - first:
+      213: -1121589882433809532
+    second: Z1_Microbe_pulled_6_50
+  - first:
+      213: 4024917038394734098
+    second: Z1_Microbe_pulled_6_51
+  - first:
+      213: -4781756971423268625
+    second: Z1_Microbe_pulled_6_52
+  - first:
+      213: -6478537129320528708
+    second: Z1_Microbe_pulled_6_53
+  - first:
+      213: 7675282000983940591
+    second: Z1_Microbe_pulled_6_54
+  - first:
+      213: -536394420393769630
+    second: Z1_Microbe_pulled_6_55
+  - first:
+      213: 821597242880825748
+    second: Z1_Microbe_pulled_6_56
+  - first:
+      213: -3046049543260143472
+    second: Z1_Microbe_pulled_6_57
+  - first:
+      213: 6116466505286999992
+    second: Z1_Microbe_pulled_6_58
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_0
+      rect:
+        serializedVersion: 2
+        x: 392
+        y: 951
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e5afba16d65d4d20800000000000000
+      internalID: 3264360782485235174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_1
+      rect:
+        serializedVersion: 2
+        x: 493
+        y: 932
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b53174be1afc1c250800000000000000
+      internalID: 5963275675959235419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_2
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 900
+        width: 24
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e0353bc46cf9e9a0800000000000000
+      internalID: -6203149501889957663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_3
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 903
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dabd53c2935b96790800000000000000
+      internalID: -7536293244268323923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_4
+      rect:
+        serializedVersion: 2
+        x: 457
+        y: 922
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 888fd0a3e016d1990800000000000000
+      internalID: -7413662697850537848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_5
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 883
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 021fc3f26ffd594a0800000000000000
+      internalID: -6587112631512010464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_6
+      rect:
+        serializedVersion: 2
+        x: 502
+        y: 896
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46b62e7236d01d730800000000000000
+      internalID: 4022010661740637028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_7
+      rect:
+        serializedVersion: 2
+        x: 316
+        y: 662
+        width: 278
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7925122aac7ec8e20800000000000000
+      internalID: 3354310679973679767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_8
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 868
+        width: 30
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07b29b1f78b32b820800000000000000
+      internalID: 2932471762433682288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_9
+      rect:
+        serializedVersion: 2
+        x: 586
+        y: 866
+        width: 36
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fd7bbc0f77735ee0800000000000000
+      internalID: -1273542882057552394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_10
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 808
+        width: 40
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f417203c1343875c0800000000000000
+      internalID: -4217563662702710449
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_11
+      rect:
+        serializedVersion: 2
+        x: 580
+        y: 837
+        width: 42
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ca4ac128908993d0800000000000000
+      internalID: -3199384669379736887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_12
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 807
+        width: 35
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2e10ee2655ce5820800000000000000
+      internalID: 2908979383272218156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_13
+      rect:
+        serializedVersion: 2
+        x: 595
+        y: 774
+        width: 30
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cc71b24c318e6240800000000000000
+      internalID: 4786905549758364872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_14
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 762
+        width: 23
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4be0946bebabf37c0800000000000000
+      internalID: -4089344608364327244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_15
+      rect:
+        serializedVersion: 2
+        x: 596
+        y: 747
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2803e9817c9472f0800000000000000
+      internalID: -975983207773960145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_16
+      rect:
+        serializedVersion: 2
+        x: 644
+        y: 759
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af963b7b9f390af90800000000000000
+      internalID: -6944387924667176454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_17
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 631
+        width: 125
+        height: 125
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b04b72ba4e8747470800000000000000
+      internalID: 8391464929217459211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_18
+      rect:
+        serializedVersion: 2
+        x: 654
+        y: 723
+        width: 22
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17358f9df5017ccb0800000000000000
+      internalID: -4843884870348811407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_19
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 730
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2801d41b3d2e9940800000000000000
+      internalID: 5304727142864586795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_20
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 664
+        width: 54
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecfdff4d2716c03a0800000000000000
+      internalID: -6697871399979065394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_21
+      rect:
+        serializedVersion: 2
+        x: 385
+        y: 596
+        width: 105
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bed9cbf5c41e72530800000000000000
+      internalID: 3830277726241857003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_22
+      rect:
+        serializedVersion: 2
+        x: 568
+        y: 670
+        width: 57
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4ed828f3b9c27950800000000000000
+      internalID: 6445435791520357966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_23
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 690
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc7175e42be0d2570800000000000000
+      internalID: 8443421035370846157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_24
+      rect:
+        serializedVersion: 2
+        x: 655
+        y: 692
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dff4c0a097c3bee0800000000000000
+      internalID: -1246433247865012271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_25
+      rect:
+        serializedVersion: 2
+        x: 671
+        y: 703
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04f5695bc07f88c20800000000000000
+      internalID: 3209086368459677504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_26
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 642
+        width: 22
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acf08b7125249b1b0800000000000000
+      internalID: -5640404137952145462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_27
+      rect:
+        serializedVersion: 2
+        x: 270
+        y: 600
+        width: 108
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b35cfc9038063adb0800000000000000
+      internalID: -4781872263415741125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_28
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 622
+        width: 33
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d754559a18b654d0800000000000000
+      internalID: -3146124865357719600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_29
+      rect:
+        serializedVersion: 2
+        x: 509
+        y: 635
+        width: 23
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78ac3420998855160800000000000000
+      internalID: 7013662185448786567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_30
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 640
+        width: 61
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8550e798ced089fd0800000000000000
+      internalID: -2335101097221421736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_31
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 656
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cbbcd764f2ae6fb0800000000000000
+      internalID: -4652602194428904505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_32
+      rect:
+        serializedVersion: 2
+        x: 584
+        y: 642
+        width: 28
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f66667c14e9f4b30800000000000000
+      internalID: 4273808576753329904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_33
+      rect:
+        serializedVersion: 2
+        x: 603
+        y: 621
+        width: 31
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ceee5a10a5ec45a0800000000000000
+      internalID: -6535596483421475135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_34
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 634
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ae0de489c4910cf0800000000000000
+      internalID: -287785307935535454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_35
+      rect:
+        serializedVersion: 2
+        x: 507
+        y: 604
+        width: 27
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 880f3e937ac5edb80800000000000000
+      internalID: -8368149184307269496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_36
+      rect:
+        serializedVersion: 2
+        x: 638
+        y: 630
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3120cf155e026fd30800000000000000
+      internalID: 4464792249879495187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_37
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 585
+        width: 38
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eae5e9d5984402c20800000000000000
+      internalID: 3179616693695438510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_38
+      rect:
+        serializedVersion: 2
+        x: 388
+        y: 575
+        width: 62
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c22d5c104d0cfbfe0800000000000000
+      internalID: -1171005361297698260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_39
+      rect:
+        serializedVersion: 2
+        x: 501
+        y: 589
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 552835a787f29df70800000000000000
+      internalID: 9212446707257934421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_40
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 567
+        width: 34
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d41e3fd05e9933320800000000000000
+      internalID: 2536540224200368461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_41
+      rect:
+        serializedVersion: 2
+        x: 569
+        y: 588
+        width: 26
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f27bb2bc176213780800000000000000
+      internalID: -8705134334548658385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_42
+      rect:
+        serializedVersion: 2
+        x: 374
+        y: 563
+        width: 23
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea9776043fdc84770800000000000000
+      internalID: 8595346333477861806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_43
+      rect:
+        serializedVersion: 2
+        x: 411
+        y: 541
+        width: 29
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ca8e5a420191b670800000000000000
+      internalID: 8552776606376954567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_44
+      rect:
+        serializedVersion: 2
+        x: 468
+        y: 539
+        width: 37
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 411486b40725b7d70800000000000000
+      internalID: 9041911319131341076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_45
+      rect:
+        serializedVersion: 2
+        x: 476
+        y: 559
+        width: 30
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76a8e2da77fecd270800000000000000
+      internalID: 8276753512485784167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_46
+      rect:
+        serializedVersion: 2
+        x: 508
+        y: 565
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 874d2cca67872f3c0800000000000000
+      internalID: -4327263840849701768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_47
+      rect:
+        serializedVersion: 2
+        x: 588
+        y: 547
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f6d617dedd828540800000000000000
+      internalID: 5008721723820267255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_48
+      rect:
+        serializedVersion: 2
+        x: 360
+        y: 527
+        width: 46
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4376055b7aa36900800000000000000
+      internalID: 676571815719891786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_49
+      rect:
+        serializedVersion: 2
+        x: 434
+        y: 527
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f0db8f7e7db971a0800000000000000
+      internalID: -6811204610417766160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_50
+      rect:
+        serializedVersion: 2
+        x: 443
+        y: 522
+        width: 40
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4835cd1c1ff4f60f0800000000000000
+      internalID: -1121589882433809532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_51
+      rect:
+        serializedVersion: 2
+        x: 501
+        y: 509
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2167fe3b8b06bd730800000000000000
+      internalID: 4024917038394734098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_52
+      rect:
+        serializedVersion: 2
+        x: 525
+        y: 544
+        width: 24
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe0811c8e59c3adb0800000000000000
+      internalID: -4781756971423268625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_53
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 506
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb4cbae3ecc9716a0800000000000000
+      internalID: -6478537129320528708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_54
+      rect:
+        serializedVersion: 2
+        x: 347
+        y: 518
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fedd8938054148a60800000000000000
+      internalID: 7675282000983940591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_55
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 499
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2658de8dd185e88f0800000000000000
+      internalID: -536394420393769630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_56
+      rect:
+        serializedVersion: 2
+        x: 379
+        y: 468
+        width: 22
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4991a52e656e66b00800000000000000
+      internalID: 821597242880825748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_57
+      rect:
+        serializedVersion: 2
+        x: 552
+        y: 486
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0900dbd34124ab5d0800000000000000
+      internalID: -3046049543260143472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_pulled_6_58
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 450
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bfd43051ed02e450800000000000000
+      internalID: 6116466505286999992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Z1_Microbe_pulled_6_0: 3264360782485235174
+      Z1_Microbe_pulled_6_1: 5963275675959235419
+      Z1_Microbe_pulled_6_10: -4217563662702710449
+      Z1_Microbe_pulled_6_11: -3199384669379736887
+      Z1_Microbe_pulled_6_12: 2908979383272218156
+      Z1_Microbe_pulled_6_13: 4786905549758364872
+      Z1_Microbe_pulled_6_14: -4089344608364327244
+      Z1_Microbe_pulled_6_15: -975983207773960145
+      Z1_Microbe_pulled_6_16: -6944387924667176454
+      Z1_Microbe_pulled_6_17: 8391464929217459211
+      Z1_Microbe_pulled_6_18: -4843884870348811407
+      Z1_Microbe_pulled_6_19: 5304727142864586795
+      Z1_Microbe_pulled_6_2: -6203149501889957663
+      Z1_Microbe_pulled_6_20: -6697871399979065394
+      Z1_Microbe_pulled_6_21: 3830277726241857003
+      Z1_Microbe_pulled_6_22: 6445435791520357966
+      Z1_Microbe_pulled_6_23: 8443421035370846157
+      Z1_Microbe_pulled_6_24: -1246433247865012271
+      Z1_Microbe_pulled_6_25: 3209086368459677504
+      Z1_Microbe_pulled_6_26: -5640404137952145462
+      Z1_Microbe_pulled_6_27: -4781872263415741125
+      Z1_Microbe_pulled_6_28: -3146124865357719600
+      Z1_Microbe_pulled_6_29: 7013662185448786567
+      Z1_Microbe_pulled_6_3: -7536293244268323923
+      Z1_Microbe_pulled_6_30: -2335101097221421736
+      Z1_Microbe_pulled_6_31: -4652602194428904505
+      Z1_Microbe_pulled_6_32: 4273808576753329904
+      Z1_Microbe_pulled_6_33: -6535596483421475135
+      Z1_Microbe_pulled_6_34: -287785307935535454
+      Z1_Microbe_pulled_6_35: -8368149184307269496
+      Z1_Microbe_pulled_6_36: 4464792249879495187
+      Z1_Microbe_pulled_6_37: 3179616693695438510
+      Z1_Microbe_pulled_6_38: -1171005361297698260
+      Z1_Microbe_pulled_6_39: 9212446707257934421
+      Z1_Microbe_pulled_6_4: -7413662697850537848
+      Z1_Microbe_pulled_6_40: 2536540224200368461
+      Z1_Microbe_pulled_6_41: -8705134334548658385
+      Z1_Microbe_pulled_6_42: 8595346333477861806
+      Z1_Microbe_pulled_6_43: 8552776606376954567
+      Z1_Microbe_pulled_6_44: 9041911319131341076
+      Z1_Microbe_pulled_6_45: 8276753512485784167
+      Z1_Microbe_pulled_6_46: -4327263840849701768
+      Z1_Microbe_pulled_6_47: 5008721723820267255
+      Z1_Microbe_pulled_6_48: 676571815719891786
+      Z1_Microbe_pulled_6_49: -6811204610417766160
+      Z1_Microbe_pulled_6_5: -6587112631512010464
+      Z1_Microbe_pulled_6_50: -1121589882433809532
+      Z1_Microbe_pulled_6_51: 4024917038394734098
+      Z1_Microbe_pulled_6_52: -4781756971423268625
+      Z1_Microbe_pulled_6_53: -6478537129320528708
+      Z1_Microbe_pulled_6_54: 7675282000983940591
+      Z1_Microbe_pulled_6_55: -536394420393769630
+      Z1_Microbe_pulled_6_56: 821597242880825748
+      Z1_Microbe_pulled_6_57: -3046049543260143472
+      Z1_Microbe_pulled_6_58: 6116466505286999992
+      Z1_Microbe_pulled_6_6: 4022010661740637028
+      Z1_Microbe_pulled_6_7: 3354310679973679767
+      Z1_Microbe_pulled_6_8: 2932471762433682288
+      Z1_Microbe_pulled_6_9: -1273542882057552394
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

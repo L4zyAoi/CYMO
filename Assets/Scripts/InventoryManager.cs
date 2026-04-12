@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Manages the player's 4-slot quest item inventory.
+/// Manages the player's 4-slot inventory and quest badge list.
 /// Persistent singleton — should survive scene loads.
 ///
 /// SETUP:
@@ -18,6 +18,7 @@ public class InventoryManager : MonoBehaviour
     // Max inventory slots
     public const int SlotCnt = 4;
     private ItemData[] slots = new ItemData[SlotCnt];
+    private int[] slotCounts = new int[SlotCnt];
 
     // Separate collection for non-functional "badge" items
     private System.Collections.Generic.List<ItemData> questItems = new System.Collections.Generic.List<ItemData>();
@@ -49,15 +50,38 @@ public class InventoryManager : MonoBehaviour
     /// </summary>
     public bool TryAddItem(ItemData item)
     {
+        if (item == null) return false;
+
+        // Stack into an existing slot first when the item supports stacking.
+        if (item.useStacking)
+        {
+            int maxStack = Mathf.Max(1, item.maxStack);
+
+            for (int i = 0; i < SlotCnt; i++)
+            {
+                if (slots[i] != item) continue;
+
+                int currentCount = Mathf.Max(1, slotCounts[i]);
+                if (currentCount >= maxStack) continue;
+
+                slotCounts[i] = currentCount + 1;
+                OnInvenChanged?.Invoke();
+                return true;
+            }
+        }
+
+        // Otherwise place into the first empty slot.
         for (int i = 0; i < SlotCnt; i++)
         {
             if (slots[i] == null)
             {
                 slots[i] = item;
+                slotCounts[i] = 1;
                 OnInvenChanged?.Invoke();
                 return true;
             }
         }
+
         return false; // inventory full
     }
 
@@ -88,15 +112,45 @@ public class InventoryManager : MonoBehaviour
     /// </summary>
     public void RemoveItem(ItemData item)
     {
+        TryRemoveItemAmount(item, 1);
+    }
+
+    /// <summary>
+    /// Removes an amount of an item from the standard inventory slots.
+    /// Returns true when all requested units were removed.
+    /// </summary>
+    public bool TryRemoveItemAmount(ItemData item, int amount)
+    {
+        if (item == null || amount <= 0) return false;
+        if (GetItemCount(item) < amount) return false;
+
+        int remaining = amount;
         for (int i = 0; i < SlotCnt; i++)
         {
-            if (slots[i] == item)
+            if (slots[i] != item) continue;
+
+            int unitCount = Mathf.Max(1, slotCounts[i]);
+            int take = Mathf.Min(unitCount, remaining);
+
+            unitCount -= take;
+            remaining -= take;
+
+            if (unitCount <= 0)
             {
                 slots[i] = null;
-                OnInvenChanged?.Invoke();
-                return;
+                slotCounts[i] = 0;
             }
+            else
+            {
+                slotCounts[i] = unitCount;
+            }
+
+            if (remaining <= 0)
+                break;
         }
+
+        OnInvenChanged?.Invoke();
+        return true;
     }
 
     /// <summary>
@@ -104,6 +158,33 @@ public class InventoryManager : MonoBehaviour
     /// </summary>
     public ItemData GetSlot(int index) =>
         (index >= 0 && index < SlotCnt) ? slots[index] : null;
+
+    /// <summary>
+    /// Returns the visible count for a slot item (0 if empty).
+    /// </summary>
+    public int GetSlotCount(int index)
+    {
+        if (index < 0 || index >= SlotCnt) return 0;
+        if (slots[index] == null) return 0;
+        return Mathf.Max(1, slotCounts[index]);
+    }
+
+    /// <summary>
+    /// Returns the total amount of an item in the 4-slot inventory.
+    /// </summary>
+    public int GetItemCount(ItemData item)
+    {
+        if (item == null) return 0;
+
+        int count = 0;
+        for (int i = 0; i < SlotCnt; i++)
+        {
+            if (slots[i] != item) continue;
+            count += Mathf.Max(1, slotCounts[i]);
+        }
+
+        return count;
+    }
 
     /// <summary>
     /// True if every slot is occupied.
@@ -121,8 +202,11 @@ public class InventoryManager : MonoBehaviour
     public bool Contains(ItemData item)
     {
         // 1. Check standard 4-slot inventory
-        foreach (var s in slots)
-            if (s == item) return true;
+        for (int i = 0; i < SlotCnt; i++)
+        {
+            if (slots[i] != item) continue;
+            if (Mathf.Max(1, slotCounts[i]) > 0) return true;
+        }
 
         // 2. Check quest/badge list
         if (questItems != null && questItems.Contains(item))

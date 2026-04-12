@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2cdad43f7fd4f4c9daddb382cab798, type: 3}
+  m_Name: LiverBadge3_Final
+  m_EditorClassIdentifier: 
+  itemName: Liver Badge 3
+  description: Final badge unlocked after the two guards move aside.
+  icon: {fileID: 6612907564291277056, guid: ba0610aaa9d00f743b07c876bd971fda, type: 3}
+  emptyBadgeIcon: {fileID: 8799856269454482600, guid: 8eb3793aa2a2b99438ce3d455a86ab9b, type: 3}
+  isQuestItem: 1
+  useStacking: 0
+  maxStack: 99

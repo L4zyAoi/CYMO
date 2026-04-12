@@ -87,6 +87,10 @@ public class GameManager : MonoBehaviour
 	[Tooltip("When using SectionSpawn mode, explicit section index to point at (clamped). -1 to use default next section.")]
 	public int initialGuidanceSectionIndexOverride = -1;
 
+	[Min(0.05f)]
+	[Tooltip("Scale multiplier applied only to the first initial guidance arrow shown after opening cinematic.")]
+	public float initialGuidanceScaleMultiplier = 1f;
+
 	[Header("Cutscene Options")]
 	[Tooltip("If true, start all section on-enter cutscenes (video or sprite) while the screen is black during a walk transition.")]
 	public bool forceStartCutscenesDuringBlack = false;
@@ -111,6 +115,9 @@ public class GameManager : MonoBehaviour
 	// Follow-up activation helper
 	private Coroutine followupActivationWaitRoutine = null;
 	private const float followupActivationVideoWaitTimeout = 5f;
+	private int sceneLookupCacheFrame = -1;
+	private SectionExit[] cachedSceneExits = null;
+	private SpriteRenderer[] cachedSceneSpriteRenderers = null;
 
 	[System.Serializable]
 	public struct SectionBackground
@@ -121,12 +128,47 @@ public class GameManager : MonoBehaviour
 		public SpriteRenderer background;
 	}
 
+	private void InvalidateSceneLookupCaches()
+	{
+		sceneLookupCacheFrame = -1;
+		cachedSceneExits = null;
+		cachedSceneSpriteRenderers = null;
+	}
+
+	// Cache scene-wide scans once per frame so repeated helper calls do not re-scan everything.
+	private void RefreshSceneLookupCaches(bool forceRefresh = false)
+	{
+		if (!forceRefresh &&
+		    sceneLookupCacheFrame == Time.frameCount &&
+		    cachedSceneExits != null &&
+		    cachedSceneSpriteRenderers != null)
+		{
+			return;
+		}
+
+		cachedSceneExits = FindObjectsByType<SectionExit>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+		cachedSceneSpriteRenderers = FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+		sceneLookupCacheFrame = Time.frameCount;
+	}
+
+	private SectionExit[] GetSceneSectionExits(bool forceRefresh = false)
+	{
+		RefreshSceneLookupCaches(forceRefresh);
+		return cachedSceneExits ?? System.Array.Empty<SectionExit>();
+	}
+
+	private SpriteRenderer[] GetSceneSpriteRenderers(bool forceRefresh = false)
+	{
+		RefreshSceneLookupCaches(forceRefresh);
+		return cachedSceneSpriteRenderers ?? System.Array.Empty<SpriteRenderer>();
+	}
+
 	/// <summary>
 	/// Public helper: show a guidance arrow pointing at the SectionExit with the given exitId (if found in scene).
 	/// </summary>
 	public void ShowGuidanceToExit(int exitId)
 	{
-		SectionExit[] allExits = FindObjectsOfType<SectionExit>();
+		SectionExit[] allExits = GetSceneSectionExits();
 		foreach (SectionExit exit in allExits)
 		{
 			if (exit.exitId == exitId)
@@ -266,6 +308,7 @@ public class GameManager : MonoBehaviour
 
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 	{
+		InvalidateSceneLookupCaches();
 		// Defer rebinding a frame to allow scene objects to finish initialization
 		StartCoroutine(DelayedRebindAfterSceneLoad());
 	}
@@ -306,6 +349,7 @@ public class GameManager : MonoBehaviour
 		initialGuidanceWorldPosition = sceneManager.initialGuidanceWorldPosition;
 		initialGuidanceSceneObject = sceneManager.initialGuidanceSceneObject;
 		initialGuidanceSectionIndexOverride = sceneManager.initialGuidanceSectionIndexOverride;
+		initialGuidanceScaleMultiplier = sceneManager.initialGuidanceScaleMultiplier;
 
 		Debug.Log($"[GameManager] Applied scene overrides from scene GameManager (id={sceneManager.GetInstanceID()}).");
 	}
@@ -335,10 +379,12 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void RebindSceneReferences()
     {
+		RefreshSceneLookupCaches(forceRefresh: true);
+
         // Find camera if not assigned or stale
         if (cameraController == null)
         {
-            cameraController = FindObjectOfType<CameraController>();
+			cameraController = FindAnyObjectByType<CameraController>();
             if (cameraController != null)
                 Debug.Log($"[GameManager] CameraController bound to '{cameraController.gameObject.name}'.");
             else
@@ -348,7 +394,7 @@ public class GameManager : MonoBehaviour
         // Find player if not assigned or stale
         if (playerTransform == null)
         {
-            PointAndClickController controller = FindObjectOfType<PointAndClickController>();
+			PointAndClickController controller = FindAnyObjectByType<PointAndClickController>();
             if (controller != null)
             {
                 playerTransform = controller.transform;
@@ -363,14 +409,14 @@ public class GameManager : MonoBehaviour
 
 		// --- Diagnostics: detect common UI / camera problems when starting play from an individual scene ---
 		// EventSystem
-		EventSystem es = FindObjectOfType<EventSystem>();
+		EventSystem es = FindAnyObjectByType<EventSystem>();
 		if (es != null)
 			Debug.Log($"[GameManager] EventSystem found: '{es.gameObject.name}' (module={es.currentInputModule?.GetType().Name ?? "null"}).");
 		else
 			Debug.LogWarning("[GameManager] No EventSystem found in scene; UI buttons will not respond.");
 
 		// Canvas checks
-		Canvas[] canvases = FindObjectsOfType<Canvas>();
+		Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 		if (canvases == null || canvases.Length == 0)
 		{
 			Debug.LogWarning("[GameManager] No Canvas objects found in scene.");
@@ -394,7 +440,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		// Also enumerate ALL CanvasGroup components in loaded scenes (including inactive) and log their state
-		CanvasGroup[] allCanvasGroups = Resources.FindObjectsOfTypeAll<CanvasGroup>();
+		CanvasGroup[] allCanvasGroups = FindObjectsByType<CanvasGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 		foreach (var cgAll in allCanvasGroups)
 		{
 			if (cgAll == null) continue;
@@ -1012,7 +1058,7 @@ public class GameManager : MonoBehaviour
 			Debug.LogWarning($"[GameManager] initialGuidanceExitId {initialGuidanceExitId} not found in scene; searching for nearest SectionExit...");
 
 			// Try to find any SectionExit in the scene and target the nearest one as a fallback.
-			SectionExit[] allExits = FindObjectsOfType<SectionExit>();
+			SectionExit[] allExits = GetSceneSectionExits();
 			if (allExits != null && allExits.Length > 0)
 			{
 				SectionExit nearest = null;
@@ -1218,8 +1264,8 @@ public class GameManager : MonoBehaviour
 
 	private int ActivateSceneFollowupMarkers()
 	{
-		// Use Resources.FindObjectsOfTypeAll to include inactive scene objects (prefabs/assets filtered out below)
-		SceneGuidanceMarker[] markers = Resources.FindObjectsOfTypeAll<SceneGuidanceMarker>();
+		// Include inactive scene objects so markers can be activated even when initially hidden.
+		SceneGuidanceMarker[] markers = FindObjectsByType<SceneGuidanceMarker>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 		Debug.Log($"[GameManager] ActivateSceneFollowupMarkers: discovered {markers.Length} SceneGuidanceMarker(s) (including inactive). Filtering to loaded scene objects...");
 		int activated = 0;
 		foreach (var m in markers)
@@ -1313,7 +1359,7 @@ public class GameManager : MonoBehaviour
 
 		// Find the SectionExit component in the scene with this exitId in this section
 		// For now, we'll search through all SectionExits
-		SectionExit[] allExits = FindObjectsOfType<SectionExit>();
+		SectionExit[] allExits = GetSceneSectionExits();
 		SectionExit best = null;
 		float bestDist = float.MaxValue;
 		Vector3 playerPos = playerTransform != null ? playerTransform.position : Vector3.zero;
@@ -1392,7 +1438,7 @@ public class GameManager : MonoBehaviour
 	{
 		try
 		{
-			SpriteRenderer[] allSR = FindObjectsOfType<SpriteRenderer>();
+			SpriteRenderer[] allSR = GetSceneSpriteRenderers();
 			if (allSR == null || allSR.Length == 0) return null;
 			SpriteRenderer best = null;
 			float bestDist = float.MaxValue;
@@ -1539,7 +1585,7 @@ public class GameManager : MonoBehaviour
 				return;
 			}
 
-			SpriteRenderer[] allSR = FindObjectsOfType<SpriteRenderer>();
+			SpriteRenderer[] allSR = GetSceneSpriteRenderers();
 			if (allSR == null || allSR.Length == 0)
 				return;
 
@@ -1630,6 +1676,14 @@ public class GameManager : MonoBehaviour
 		}
 
 		activeGuidanceArrow = Instantiate(guidanceArrowPrefab);
+		if (markAsInitial)
+		{
+			float safeScaleMultiplier = Mathf.Max(0.05f, initialGuidanceScaleMultiplier);
+			if (!Mathf.Approximately(safeScaleMultiplier, 1f))
+			{
+				activeGuidanceArrow.transform.localScale *= safeScaleMultiplier;
+			}
+		}
 		GuidanceArrow ga = activeGuidanceArrow.GetComponent<GuidanceArrow>();
 		if (ga != null)
 		{

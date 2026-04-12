@@ -22,4 +22,12 @@ public class ItemData : ScriptableObject
 
     [Tooltip("If true, this item appearing in the world will be collected as a 'badge' in the Progress Panel instead of taking up one of the 4 inventory slots.")]
     public bool isQuestItem = false;
+
+    [Header("Inventory Stacking")]
+    [Tooltip("If true, duplicate pickups of this item can stack in one inventory slot.")]
+    public bool useStacking = false;
+
+    [Min(1)]
+    [Tooltip("Maximum amount allowed in a single stack slot for this item.")]
+    public int maxStack = 99;
 }

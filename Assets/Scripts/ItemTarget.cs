@@ -16,6 +16,9 @@ public class ItemTarget : MonoBehaviour
     [Tooltip("The specific item that must be dropped here to trigger the action.")]
     public ItemData requiredItem;
 
+    [Tooltip("Optional direct obstacle callback for simpler scene wiring.")]
+    public BlockingObstacle obstacleToNotify;
+
     [Tooltip("Fired when the correct item is successfully dropped on this target. " +
              "Wire up puzzle logic, dialogue triggers, door unlocks, etc. here.")]
     public UnityEvent OnItemUsed;
@@ -36,6 +39,10 @@ public class ItemTarget : MonoBehaviour
         {
             // Correct item — consume it and fire the event
             InventoryManager.Instance.RemoveItem(droppedItem);
+
+            if (obstacleToNotify != null)
+                obstacleToNotify.UseItemAndComplete();
+
             OnItemUsed?.Invoke();
             Debug.Log($"[ItemTarget] '{droppedItem.itemName}' used on '{gameObject.name}'.");
             return true;

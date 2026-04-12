@@ -1,0 +1,171 @@
+fileFormatVersion: 2
+guid: e6b4c00509de51c459fd1b7c41be596b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3653440738893427738
+    second: T.Cell_and_Dendo_walk.back_4_0
+  - first:
+      213: -2395297203562336076
+    second: T.Cell_and_Dendo_walk.back_4_1
+  - first:
+      213: 6064909726335097402
+    second: T.Cell_and_Dendo_walk.back_4_2
+  - first:
+      213: 500810494860727120
+    second: T.Cell_and_Dendo_walk.back_4_3
+  - first:
+      213: 4427414623604615238
+    second: T.Cell_and_Dendo_walk.back_4_4
+  - first:
+      213: -3711361894444570365
+    second: T.Cell_and_Dendo_walk.back_4_5
+  - first:
+      213: -8910729775390042639
+    second: T.Cell_and_Dendo_walk.back_4_6
+  - first:
+      213: -7701830492397167665
+    second: T.Cell_and_Dendo_walk.back_4_7
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: T.Cell_and_Dendo_walk.back_4_0
+      rect:
+        serializedVersion: 2
+        x: 538
+        y: 364
+        width: 636
+        height: 371
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6eb0156310f5c4dc0800000000000000
+      internalID: -3653440738893427738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 4369d7be186bdfc4f933ff724a644b4c
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      T.Cell_and_Dendo_walk.back_4_0: -3653440738893427738
+      T.Cell_and_Dendo_walk.back_4_1: -2395297203562336076
+      T.Cell_and_Dendo_walk.back_4_2: 6064909726335097402
+      T.Cell_and_Dendo_walk.back_4_3: 500810494860727120
+      T.Cell_and_Dendo_walk.back_4_4: 4427414623604615238
+      T.Cell_and_Dendo_walk.back_4_5: -3711361894444570365
+      T.Cell_and_Dendo_walk.back_4_6: -8910729775390042639
+      T.Cell_and_Dendo_walk.back_4_7: -7701830492397167665
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

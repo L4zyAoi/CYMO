@@ -1,0 +1,455 @@
+fileFormatVersion: 2
+guid: c3beb28302a45384a9f51685a016f195
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2800862813037595131
+    second: Z1_Microbe_come.back_1_0
+  - first:
+      213: 1764322250382510807
+    second: Z1_Microbe_come.back_1_1
+  - first:
+      213: 3322595918171971798
+    second: Z1_Microbe_come.back_1_2
+  - first:
+      213: -5057960292516753510
+    second: Z1_Microbe_come.back_1_3
+  - first:
+      213: -5060067648493923408
+    second: Z1_Microbe_come.back_1_4
+  - first:
+      213: -6974495393650211184
+    second: Z1_Microbe_come.back_1_5
+  - first:
+      213: -6869043473284157182
+    second: Z1_Microbe_come.back_1_6
+  - first:
+      213: 1048607727919103795
+    second: Z1_Microbe_come.back_1_7
+  - first:
+      213: -2423227848354399918
+    second: Z1_Microbe_come.back_1_8
+  - first:
+      213: 6468365642173178844
+    second: Z1_Microbe_come.back_1_9
+  - first:
+      213: -404145416411299802
+    second: Z1_Microbe_come.back_1_10
+  - first:
+      213: 7654745434372788859
+    second: Z1_Microbe_come.back_1_11
+  - first:
+      213: 8403363417810996319
+    second: Z1_Microbe_come.back_1_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_0
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 870
+        width: 34
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf905bb83e9aed620800000000000000
+      internalID: 2800862813037595131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_1
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 884
+        width: 54
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7da0e5b2db12c7810800000000000000
+      internalID: 1764322250382510807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_2
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 721
+        width: 163
+        height: 147
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d0adca326b3c1e20800000000000000
+      internalID: 3322595918171971798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_3
+      rect:
+        serializedVersion: 2
+        x: 469
+        y: 862
+        width: 33
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9f028489e38ec9b0800000000000000
+      internalID: -5057960292516753510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_4
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 810
+        width: 18
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b3d218784707c9b0800000000000000
+      internalID: -5060067648493923408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_5
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 802
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09681e5546d953f90800000000000000
+      internalID: -6974495393650211184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_6
+      rect:
+        serializedVersion: 2
+        x: 525
+        y: 780
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 201be24da514ca0a0800000000000000
+      internalID: -6869043473284157182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_7
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 740
+        width: 11
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33ff85b3c276d8e00800000000000000
+      internalID: 1048607727919103795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_8
+      rect:
+        serializedVersion: 2
+        x: 353
+        y: 709
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25970095c17fe5ed0800000000000000
+      internalID: -2423227848354399918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_9
+      rect:
+        serializedVersion: 2
+        x: 360
+        y: 694
+        width: 29
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd3e21bd74044c950800000000000000
+      internalID: 6468365642173178844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_10
+      rect:
+        serializedVersion: 2
+        x: 424
+        y: 708
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 620c33192ef246af0800000000000000
+      internalID: -404145416411299802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_11
+      rect:
+        serializedVersion: 2
+        x: 434
+        y: 707
+        width: 29
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7255dd7a6e1b3a60800000000000000
+      internalID: 7654745434372788859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Z1_Microbe_come.back_1_12
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 687
+        width: 46
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5c032d618ebe9470800000000000000
+      internalID: 8403363417810996319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Z1_Microbe_come.back_1_0: 2800862813037595131
+      Z1_Microbe_come.back_1_1: 1764322250382510807
+      Z1_Microbe_come.back_1_10: -404145416411299802
+      Z1_Microbe_come.back_1_11: 7654745434372788859
+      Z1_Microbe_come.back_1_12: 8403363417810996319
+      Z1_Microbe_come.back_1_2: 3322595918171971798
+      Z1_Microbe_come.back_1_3: -5057960292516753510
+      Z1_Microbe_come.back_1_4: -5060067648493923408
+      Z1_Microbe_come.back_1_5: -6974495393650211184
+      Z1_Microbe_come.back_1_6: -6869043473284157182
+      Z1_Microbe_come.back_1_7: 1048607727919103795
+      Z1_Microbe_come.back_1_8: -2423227848354399918
+      Z1_Microbe_come.back_1_9: 6468365642173178844
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

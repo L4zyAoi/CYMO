@@ -1688,7 +1688,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e2af6a1349e472549a7ea2c80081a037, type: 3}
+  m_Sprite: {fileID: 191717458061174926, guid: e2af6a1349e472549a7ea2c80081a037, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2086,7 +2086,8 @@ MonoBehaviour:
   slotIdx: 2
   iconImg: {fileID: 6403880612659356792}
   tooltipObj: {fileID: 3211755535898123200}
-  tooltipTxt: {fileID: 5068499574167595142}
+  tooltipTxt: {fileID: 0}
+  stackCountTxt: {fileID: 5068499574167595142}
   ghostAlpha: 0.7
   dropLayerMask:
     serializedVersion: 2
@@ -2625,7 +2626,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5055047294256140940
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2642,8 +2643,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 133.29236, y: 137}
-  m_SizeDelta: {x: 250, y: 250}
+  m_AnchoredPosition: {x: 97.9698, y: 106.44}
+  m_SizeDelta: {x: 179.3576, y: 188.89}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4317275808252069126
 CanvasRenderer:
@@ -2673,7 +2674,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -1104938260738534510, guid: bfbce3a8a6962dc4e901b08e6a293e2b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2820,7 +2821,8 @@ MonoBehaviour:
   slotIdx: 3
   iconImg: {fileID: 2465580837835467215}
   tooltipObj: {fileID: 2166364102516589511}
-  tooltipTxt: {fileID: 7109675117493925233}
+  tooltipTxt: {fileID: 0}
+  stackCountTxt: {fileID: 7109675117493925233}
   ghostAlpha: 0.7
   dropLayerMask:
     serializedVersion: 2
@@ -3317,7 +3319,8 @@ MonoBehaviour:
   slotIdx: 1
   iconImg: {fileID: 4798042413003007520}
   tooltipObj: {fileID: 8640149860900556754}
-  tooltipTxt: {fileID: 2840696074994049651}
+  tooltipTxt: {fileID: 0}
+  stackCountTxt: {fileID: 2840696074994049651}
   ghostAlpha: 0.7
   dropLayerMask:
     serializedVersion: 2
@@ -4857,7 +4860,8 @@ MonoBehaviour:
   slotIdx: 0
   iconImg: {fileID: 7891073506361246079}
   tooltipObj: {fileID: 3678415152191108598}
-  tooltipTxt: {fileID: 4111310827940106936}
+  tooltipTxt: {fileID: 0}
+  stackCountTxt: {fileID: 4111310827940106936}
   ghostAlpha: 0.7
   dropLayerMask:
     serializedVersion: 2
@@ -5294,8 +5298,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1825, y: 115}
-  m_SizeDelta: {x: 150, y: 170}
+  m_AnchoredPosition: {x: 1839.7655, y: 110.9433}
+  m_SizeDelta: {x: 120.4689, y: 179.8866}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7754830664142614314
 CanvasRenderer:
@@ -6103,6 +6107,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3140002618697130015}
     m_Modifications:
+    - target: {fileID: 2731819374772576993, guid: 7e8764c7254f9b5409bcc51ccdbad0cf, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 3613299819774071956, guid: 9bf5ba554f2314f4baef92bec3a68bb0, type: 2}
     - target: {fileID: 2988961686614443572, guid: 7e8764c7254f9b5409bcc51ccdbad0cf, type: 3}
       propertyPath: m_Name
       value: Skip Button

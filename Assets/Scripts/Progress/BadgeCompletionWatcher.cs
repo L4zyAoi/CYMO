@@ -439,7 +439,7 @@ public class BadgeCompletionWatcher : MonoBehaviour
 
         if (celebrateAllCharacters)
         {
-            var all = FindObjectsOfType<PointAndClickController>();
+            var all = FindObjectsByType<PointAndClickController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (var c in all)
             {
                 try { c.PlayCelebration(celebrationDuration); } catch { }

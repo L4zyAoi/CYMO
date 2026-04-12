@@ -338,7 +338,7 @@ MonoBehaviour:
       useOverrideSpawnPoint: 1
       overrideSpawnPoint: {x: -60.7, y: 35.13}
   - sectionName: Section 8
-    spawnPoint: {x: -30.48, y: 9.51}
+    spawnPoint: {x: -63, y: 21.05}
     cameraBounds:
       serializedVersion: 2
       x: -36.8
@@ -363,7 +363,7 @@ MonoBehaviour:
       exitId: 28
       targetSectionIndex: 7
       destinationExitId: 0
-      useOverrideSpawnPoint: 0
+      useOverrideSpawnPoint: 1
       overrideSpawnPoint: {x: -63, y: 21.05}
     - exitName: Section 8 NW
       exitId: 29
@@ -409,7 +409,7 @@ MonoBehaviour:
       exitId: 32
       targetSectionIndex: 8
       destinationExitId: 0
-      useOverrideSpawnPoint: 0
+      useOverrideSpawnPoint: 1
       overrideSpawnPoint: {x: -67.24, y: -4.32}
     - exitName: Section 9 SE
       exitId: 33
@@ -430,7 +430,7 @@ MonoBehaviour:
       useOverrideSpawnPoint: 1
       overrideSpawnPoint: {x: -84.84, y: -13.15}
   - sectionName: Section 10
-    spawnPoint: {x: -27.67, y: -1.84}
+    spawnPoint: {x: -27.89, y: -6.26}
     cameraBounds:
       serializedVersion: 2
       x: -20.16
@@ -455,14 +455,14 @@ MonoBehaviour:
       exitId: 36
       targetSectionIndex: 9
       destinationExitId: 0
-      useOverrideSpawnPoint: 0
+      useOverrideSpawnPoint: 1
       overrideSpawnPoint: {x: -50.4, y: -8.75}
     - exitName: Section 10 SW
       exitId: 37
       targetSectionIndex: 9
       destinationExitId: 0
       useOverrideSpawnPoint: 1
-      overrideSpawnPoint: {x: -27.89, y: -6.26}
+      overrideSpawnPoint: {x: -50, y: -13.9}
     - exitName: Section 10 upper mid
       exitId: 38
       targetSectionIndex: 9
@@ -507,7 +507,7 @@ MonoBehaviour:
       exitId: 41
       targetSectionIndex: 10
       destinationExitId: 0
-      useOverrideSpawnPoint: 0
+      useOverrideSpawnPoint: 1
       overrideSpawnPoint: {x: -81.85, y: -27.63}
     - exitName: Section 11 upper mid
       exitId: 42
